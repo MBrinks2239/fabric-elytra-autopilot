@@ -29,6 +29,10 @@ repositories {
 		name 'Xander Maven'
 		url 'https://maven.isxander.dev/releases'
 	}
+	maven {
+		name = "Modrinth"
+		url = "https://api.modrinth.com/maven"
+	}
 	mavenCentral()
 }
 
@@ -43,7 +47,11 @@ dependencies {
 	modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
 	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+	modApi "maven.modrinth:xaeros-minimap:${project.xaeros_minimap_version}"
 }
+
+
 
 processResources {
 	inputs.property "version", project.version

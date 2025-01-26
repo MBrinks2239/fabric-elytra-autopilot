@@ -7,6 +7,7 @@ import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.exceptions.InvalidLocationException;
 import net.elytraautopilot.types.FlyToLocation;
 import net.elytraautopilot.utils.CommandSuggestionProvider;
+import net.elytraautopilot.xearomapintegration.XearomapWaypointReader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
@@ -69,6 +70,47 @@ public class ClientCommands {
                                         } catch (InvalidLocationException e) {
                                             ElytraAutoPilot.LOGGER.error(e.getMessage());
                                             break;
+                                        }
+                                    }
+                                    String[] xearoLocations = XearomapWaypointReader.GetXearomapWaypoints();
+                                    if(xearoLocations != null) {
+                                        for(String locationString : xearoLocations) {
+                                            try {
+                                                FlyToLocation location = FlyToLocation.ConvertStringToLocation(locationString);
+
+                                                if (!location.Name.equals(locationName))
+                                                    continue;
+
+                                                if (!minecraftClient.player.isGliding()) {
+                                                    minecraftClient.player.sendMessage(Text
+                                                            .translatable("text.elytraautopilot.flytoFail.flyingRequired")
+                                                            .formatted(Formatting.RED), true);
+                                                    return 1;
+                                                }
+
+                                                if (ElytraAutoPilot.groundheight <= ModConfig.INSTANCE.minHeight) {
+                                                    minecraftClient.player.sendMessage(Text
+                                                            .translatable("text.elytraautopilot.autoFlightFail.tooLow")
+                                                            .formatted(Formatting.RED), true);
+                                                    return 1;
+                                                }
+
+                                                ElytraAutoPilot.autoFlight = true;
+                                                ElytraAutoPilot.argXpos = location.X;
+                                                ElytraAutoPilot.argZpos = location.Z;
+                                                ElytraAutoPilot.isflytoActive = true;
+                                                ElytraAutoPilot.pitchMod = 3f;
+
+                                                context.getSource().sendFeedback(Text
+                                                        .translatable("text.elytraautopilot.flyto",
+                                                                ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
+                                                        .formatted(Formatting.GREEN));
+
+                                                return 1;
+                                            } catch (InvalidLocationException e) {
+                                                ElytraAutoPilot.LOGGER.error(e.getMessage());
+                                                break;
+                                            }
                                         }
                                     }
 

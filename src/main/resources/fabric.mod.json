@@ -51,7 +51,8 @@
     "yet_another_config_lib_v3": "*"
   },
   "suggests": {
-    "flamingo": "*"
+    "modmenu": "*",
+    "xaerominimap": "*"
   },
   "custom": {
     "modmenu": {
