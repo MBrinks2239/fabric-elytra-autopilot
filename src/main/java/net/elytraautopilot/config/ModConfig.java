@@ -61,12 +61,12 @@ public class ModConfig {
 
     // Advanced defaults
     public static final int groundCheckTicksDefault = 1;
-    public static final double pullUpAngleDefault = -46.633514;
-    public static final double pullDownAngleDefault = 37.19872;
-    public static final double pullUpMinVelocityDefault = 1.9102669;
-    public static final double pullDownMaxVelocityDefault = 2.3250866;
-    public static final double pullUpSpeedDefault = 2.1605124;
-    public static final double pullDownSpeedDefault = 0.20545267;
+    public static final double pullUpAngleDefault = -46.63;
+    public static final double pullDownAngleDefault = 37.20;
+    public static final double pullUpMinVelocityDefault = 1.91;
+    public static final double pullDownMaxVelocityDefault = 2.33;
+    public static final double pullUpSpeedDefault = 2.16;
+    public static final double pullDownSpeedDefault = 0.21;
     public static List<String> flyLocationsDefault = new ArrayList<>();
 
     // Gui values

@@ -9,7 +9,7 @@ import static java.lang.Integer.parseInt;
 public class FlyToLocation {
     public String Name;
     public int X;
-    public int Y;
+    public int Z;
 
     public static FlyToLocation ConvertStringToLocation(String configLocation) throws InvalidLocationException {
         String[] tokens = configLocation.split(";");
@@ -21,7 +21,7 @@ public class FlyToLocation {
         FlyToLocation location = new FlyToLocation();
         try {
             location.X = parseInt(tokens[1]);
-            location.Y = parseInt(tokens[2]);
+            location.Z = parseInt(tokens[2]);
         } catch (NumberFormatException ignored) {
             ModConfig.INSTANCE.flyLocations.remove(configLocation);
             ClientCommands.bufferSave = true;
@@ -29,5 +29,9 @@ public class FlyToLocation {
         }
         location.Name = tokens[0];
         return location;
+    }
+
+    public String ConvertLocationToString() {
+        return Name + ";" + X + ";" + Z;
     }
 }
