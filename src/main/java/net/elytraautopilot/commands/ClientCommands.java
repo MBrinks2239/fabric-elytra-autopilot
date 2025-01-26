@@ -2,6 +2,7 @@ package net.elytraautopilot.commands;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import net.elytraautopilot.ElytraAutoPilot;
 import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.exceptions.InvalidLocationException;
@@ -10,6 +11,8 @@ import net.elytraautopilot.utils.CommandSuggestionProvider;
 import net.elytraautopilot.xearomapintegration.XearomapWaypointReader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.sound.SoundEvent;
@@ -21,6 +24,7 @@ import static java.lang.Integer.parseInt;
 
 public class ClientCommands {
     public static boolean bufferSave = false;
+    private static final boolean isXaeroMinimapInstalled = FabricLoader.getInstance().isModLoaded("xaerominimap");
 
     public static void register(MinecraftClient minecraftClient) {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
@@ -34,82 +38,17 @@ public class ClientCommands {
                                     String locationName = StringArgumentType.getString(context, "Name");
                                     locationName = locationName.replace(";", ":");
 
-                                    for (String s : ModConfig.INSTANCE.flyLocations) {
-                                        try {
-                                            FlyToLocation location = FlyToLocation.ConvertStringToLocation(s);
-
-                                            if (!location.Name.equals(locationName))
-                                                continue;
-
-                                            if (!minecraftClient.player.isGliding()) {
-                                                minecraftClient.player.sendMessage(Text
-                                                        .translatable("text.elytraautopilot.flytoFail.flyingRequired")
-                                                        .formatted(Formatting.RED), true);
-                                                return 1;
-                                            }
-
-                                            if (ElytraAutoPilot.groundheight <= ModConfig.INSTANCE.minHeight) {
-                                                minecraftClient.player.sendMessage(Text
-                                                        .translatable("text.elytraautopilot.autoFlightFail.tooLow")
-                                                        .formatted(Formatting.RED), true);
-                                                return 1;
-                                            }
-
-                                            ElytraAutoPilot.autoFlight = true;
-                                            ElytraAutoPilot.argXpos = location.X;
-                                            ElytraAutoPilot.argZpos = location.Z;
-                                            ElytraAutoPilot.isflytoActive = true;
-                                            ElytraAutoPilot.pitchMod = 3f;
-
-                                            context.getSource().sendFeedback(Text
-                                                    .translatable("text.elytraautopilot.flyto",
-                                                            ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
-                                                    .formatted(Formatting.GREEN));
-
-                                            return 1;
-                                        } catch (InvalidLocationException e) {
-                                            ElytraAutoPilot.LOGGER.error(e.getMessage());
-                                            break;
-                                        }
+                                    int result = TryFlyTo(ModConfig.INSTANCE.flyLocations.toArray(new String[0]), locationName, minecraftClient, context);
+                                    if(result == 1) {
+                                        return 1;
                                     }
-                                    String[] xearoLocations = XearomapWaypointReader.GetXearomapWaypoints();
-                                    if(xearoLocations != null) {
-                                        for(String locationString : xearoLocations) {
-                                            try {
-                                                FlyToLocation location = FlyToLocation.ConvertStringToLocation(locationString);
 
-                                                if (!location.Name.equals(locationName))
-                                                    continue;
-
-                                                if (!minecraftClient.player.isGliding()) {
-                                                    minecraftClient.player.sendMessage(Text
-                                                            .translatable("text.elytraautopilot.flytoFail.flyingRequired")
-                                                            .formatted(Formatting.RED), true);
-                                                    return 1;
-                                                }
-
-                                                if (ElytraAutoPilot.groundheight <= ModConfig.INSTANCE.minHeight) {
-                                                    minecraftClient.player.sendMessage(Text
-                                                            .translatable("text.elytraautopilot.autoFlightFail.tooLow")
-                                                            .formatted(Formatting.RED), true);
-                                                    return 1;
-                                                }
-
-                                                ElytraAutoPilot.autoFlight = true;
-                                                ElytraAutoPilot.argXpos = location.X;
-                                                ElytraAutoPilot.argZpos = location.Z;
-                                                ElytraAutoPilot.isflytoActive = true;
-                                                ElytraAutoPilot.pitchMod = 3f;
-
-                                                context.getSource().sendFeedback(Text
-                                                        .translatable("text.elytraautopilot.flyto",
-                                                                ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
-                                                        .formatted(Formatting.GREEN));
-
+                                    if(isXaeroMinimapInstalled) {
+                                        String[] xaeroLocations = XearomapWaypointReader.GetXearomapWaypoints();
+                                        if(xaeroLocations != null) {
+                                            int xaeroResult = TryFlyTo(xaeroLocations, locationName, minecraftClient, context);
+                                            if(xaeroResult == 1) {
                                                 return 1;
-                                            } catch (InvalidLocationException e) {
-                                                ElytraAutoPilot.LOGGER.error(e.getMessage());
-                                                break;
                                             }
                                         }
                                     }
@@ -165,19 +104,16 @@ public class ClientCommands {
                                     String locationName = StringArgumentType.getString(context, "Name");
                                     locationName = locationName.replace(";", ":");
 
-                                    for (String s : ModConfig.INSTANCE.flyLocations) {
-                                        try {
-                                            FlyToLocation location = FlyToLocation.ConvertStringToLocation(s);
-                                            if (location.Name.equals(locationName)) {
-                                                ElytraAutoPilot.argXpos = location.X;
-                                                ElytraAutoPilot.argZpos = location.Z;
-                                                ElytraAutoPilot.isChained = true;
-                                                ElytraAutoPilot.takeoff();
+                                    int successLocalTakeOff = TryTakeoff(ModConfig.INSTANCE.flyLocations.toArray(new String[0]), locationName);
+                                    if (successLocalTakeOff == 1)
+                                        return 1;
+
+                                    if(isXaeroMinimapInstalled) {
+                                        String[] xaeroLocations = XearomapWaypointReader.GetXearomapWaypoints();
+                                        if (xaeroLocations != null) {
+                                            int successXaeroTakeOff = TryTakeoff(xaeroLocations, locationName);
+                                            if (successXaeroTakeOff == 1)
                                                 return 1;
-                                            }
-                                        } catch (InvalidLocationException ignored) {
-                                            ElytraAutoPilot.LOGGER.error("Error in reading Fly Location list entry!");
-                                            break;
                                         }
                                     }
                                     minecraftClient.player.sendMessage(Text
@@ -302,5 +238,68 @@ public class ClientCommands {
                             return 0;
                         })));
 
+    }
+
+    private static int TryTakeoff(String[] locations, String locationName) {
+        for (String s : locations) {
+            try {
+                FlyToLocation location = FlyToLocation.ConvertStringToLocation(s);
+                if (location.Name.equals(locationName)) {
+                    ElytraAutoPilot.argXpos = location.X;
+                    ElytraAutoPilot.argZpos = location.Z;
+                    ElytraAutoPilot.isChained = true;
+                    ElytraAutoPilot.takeoff();
+                    return 1;
+                }
+            } catch (InvalidLocationException ignored) {
+                ElytraAutoPilot.LOGGER.error("Error in reading Fly Location list entry!");
+                break;
+            }
+        }
+        return 0;
+    }
+
+    private static int TryFlyTo(String[] locations, String locationName, MinecraftClient minecraftClient, CommandContext<FabricClientCommandSource> context) {
+        for (String s : locations) {
+            try {
+                FlyToLocation location = FlyToLocation.ConvertStringToLocation(s);
+
+                if (!location.Name.equals(locationName))
+                    continue;
+
+                assert minecraftClient.player != null;
+                if (!minecraftClient.player.isGliding()) {
+                    minecraftClient.player.sendMessage(Text
+                            .translatable("text.elytraautopilot.flytoFail.flyingRequired")
+                            .formatted(Formatting.RED), true);
+                    return 1;
+                }
+
+                if (ElytraAutoPilot.groundheight <= ModConfig.INSTANCE.minHeight) {
+                    minecraftClient.player.sendMessage(Text
+                            .translatable("text.elytraautopilot.autoFlightFail.tooLow")
+                            .formatted(Formatting.RED), true);
+                    return 1;
+                }
+
+                ElytraAutoPilot.autoFlight = true;
+                ElytraAutoPilot.argXpos = location.X;
+                ElytraAutoPilot.argZpos = location.Z;
+                ElytraAutoPilot.isflytoActive = true;
+                ElytraAutoPilot.pitchMod = 3f;
+
+                context.getSource().sendFeedback(Text
+                        .translatable("text.elytraautopilot.flyto",
+                                ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
+                        .formatted(Formatting.GREEN));
+
+                return 1;
+            } catch (InvalidLocationException e) {
+                ElytraAutoPilot.LOGGER.error(e.getMessage());
+                break;
+            }
+        }
+
+        return 0;
     }
 }

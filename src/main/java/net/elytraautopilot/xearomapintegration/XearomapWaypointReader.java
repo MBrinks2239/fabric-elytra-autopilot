@@ -1,17 +1,24 @@
 package net.elytraautopilot.xearomapintegration;
 
+import net.fabricmc.loader.api.FabricLoader;
 import xaero.common.XaeroMinimapSession;
+import xaero.common.core.XaeroMinimapCore;
 import xaero.common.minimap.waypoints.Waypoint;
 import xaero.common.minimap.waypoints.WaypointSet;
 import xaero.common.minimap.waypoints.WaypointsManager;
+import xaero.minimap.XaeroMinimap;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class XearomapWaypointReader {
     public static String[] GetXearomapWaypoints() {
-        ArrayList<String> locations = new ArrayList<String>();
+        if(!FabricLoader.getInstance().isModLoaded("xaerominimap")) {
+            return null;
+        }
+        ArrayList<String> locations = new ArrayList<>();
         XaeroMinimapSession minimapSession = XaeroMinimapSession.getCurrentSession();
+
         if (minimapSession == null) return null;
 
         WaypointsManager waypointsManager = minimapSession.getWaypointsManager();
