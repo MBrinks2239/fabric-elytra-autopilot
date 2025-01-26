@@ -4,6 +4,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.elytraautopilot.ElytraAutoPilot;
 import net.elytraautopilot.config.ModConfig;
+import net.elytraautopilot.exceptions.InvalidLocationException;
+import net.elytraautopilot.types.FlyToLocation;
 import net.elytraautopilot.utils.CommandSuggestionProvider;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -29,45 +31,39 @@ public class ClientCommands {
                                         return 0;
 
                                     String locationName = StringArgumentType.getString(context, "Name");
-                                    int index = 0;
-                                    for (String s : ModConfig.INSTANCE.flyLocations) {
-                                        String[] tokens = s.split(";");
-                                        if (tokens.length != 3) {
-                                            ElytraAutoPilot.LOGGER.error("Error in reading Fly Location list entry!");
-                                            ModConfig.INSTANCE.flyLocations.remove(index);
-                                            bufferSave = true;
-                                            break;
-                                        }
-                                        String storedName = tokens[0];
 
-                                        if (storedName.equals(locationName)) {
-                                            if (minecraftClient.player.isGliding()) { // If the player is flying
-                                                if (ElytraAutoPilot.groundheight > ModConfig.INSTANCE.minHeight) { // If
-                                                                                                                   // above
-                                                                                                                   // required
-                                                                                                                   // height
-                                                    ElytraAutoPilot.autoFlight = true;
-                                                    ElytraAutoPilot.argXpos = parseInt(tokens[1]);
-                                                    ElytraAutoPilot.argZpos = parseInt(tokens[2]);
-                                                    ElytraAutoPilot.isflytoActive = true;
-                                                    ElytraAutoPilot.pitchMod = 3f;
-                                                    context.getSource().sendFeedback(Text
-                                                            .translatable("text.elytraautopilot.flyto",
-                                                                    ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
-                                                            .formatted(Formatting.GREEN));
+                                    for (String s : ModConfig.INSTANCE.flyLocations) {
+                                        try {
+                                            FlyToLocation location = FlyToLocation.ConvertStringToLocation(s);
+
+                                            if (location.Name.equals(locationName)) {
+                                                if (minecraftClient.player.isGliding()) {
+                                                    if (ElytraAutoPilot.groundheight > ModConfig.INSTANCE.minHeight) {
+                                                        ElytraAutoPilot.autoFlight = true;
+                                                        ElytraAutoPilot.argXpos = location.X;
+                                                        ElytraAutoPilot.argZpos = location.Y;
+                                                        ElytraAutoPilot.isflytoActive = true;
+                                                        ElytraAutoPilot.pitchMod = 3f;
+                                                        context.getSource().sendFeedback(Text
+                                                                .translatable("text.elytraautopilot.flyto",
+                                                                        ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
+                                                                .formatted(Formatting.GREEN));
+                                                    } else {
+                                                        minecraftClient.player.sendMessage(Text
+                                                                .translatable("text.elytraautopilot.autoFlightFail.tooLow")
+                                                                .formatted(Formatting.RED), true);
+                                                    }
                                                 } else {
                                                     minecraftClient.player.sendMessage(Text
-                                                            .translatable("text.elytraautopilot.autoFlightFail.tooLow")
+                                                            .translatable("text.elytraautopilot.flytoFail.flyingRequired")
                                                             .formatted(Formatting.RED), true);
                                                 }
-                                            } else {
-                                                minecraftClient.player.sendMessage(Text
-                                                        .translatable("text.elytraautopilot.flytoFail.flyingRequired")
-                                                        .formatted(Formatting.RED), true);
+                                                return 1;
                                             }
-                                            return 1;
+                                        } catch (InvalidLocationException e) {
+                                            ElytraAutoPilot.LOGGER.error(e.getMessage());
+                                            break;
                                         }
-                                        index++;
                                     }
                                     minecraftClient.player.sendMessage(Text
                                             .translatable("text.elytraautopilot.flylocationFail.notFound", locationName)
