@@ -58,6 +58,7 @@ public class ModConfig {
     public static final boolean elytraHotswapDefault = true;
     public static final boolean fireworkHotswapDefault = true;
     public static final boolean emergencyLandDefault = true;
+    public static final boolean elytraAutoSwapDefault = true;
 
     // Advanced defaults
     public static final int groundCheckTicksDefault = 1;
@@ -88,6 +89,7 @@ public class ModConfig {
     public boolean elytraHotswap = elytraHotswapDefault;
     public boolean fireworkHotswap = fireworkHotswapDefault;
     public boolean emergencyLand = emergencyLandDefault;
+    public boolean elytraAutoSwap = elytraAutoSwapDefault;
 
     // Advanced values
     public int groundCheckTicks = groundCheckTicksDefault;
@@ -262,6 +264,15 @@ public class ModConfig {
                                         emergencyLandDefault,
                                         () -> ModConfig.INSTANCE.emergencyLand,
                                         newVal -> ModConfig.INSTANCE.emergencyLand = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.of("Elytra Auto equip/swap"))
+                                .description(OptionDescription.of(Text.of("Enable automatic elytra equip or chestplate swap when double jump (try to glide)")))
+                                .binding(
+                                        elytraAutoSwapDefault,
+                                        () -> ModConfig.INSTANCE.elytraAutoSwap,
+                                        newVal -> ModConfig.INSTANCE.elytraAutoSwap = newVal)
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
                         .build())
