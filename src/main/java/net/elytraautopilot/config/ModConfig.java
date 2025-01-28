@@ -58,7 +58,7 @@ public class ModConfig {
     public static final boolean elytraHotswapDefault = true;
     public static final boolean fireworkHotswapDefault = true;
     public static final boolean emergencyLandDefault = true;
-    public static final boolean elytraAutoSwapDefault = true;
+    public static final boolean elytraAutoSwapDefault = false;
 
     // Advanced defaults
     public static final int groundCheckTicksDefault = 1;

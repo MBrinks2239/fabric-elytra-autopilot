@@ -14,20 +14,20 @@ base {
 
 repositories {
 	maven {
-		url 'https://jitpack.io'
+		url = "https://jitpack.io"
 	}
 	maven {
-		url "https://maven.terraformersmc.com/"
+		url ="https://maven.terraformersmc.com/"
 	}
 	maven {
-		url "https://maven.shedaniel.me/"
+		url ="https://maven.shedaniel.me/"
 	}
 	maven {
-		url 'https://maven.terraformersmc.com/'
+		url = "https://maven.terraformersmc.com/"
 	}
 	maven {
-		name 'Xander Maven'
-		url 'https://maven.isxander.dev/releases'
+		name = "Xander Maven"
+		url = "https://maven.isxander.dev/releases"
 	}
 	maven {
 		name = "Modrinth"

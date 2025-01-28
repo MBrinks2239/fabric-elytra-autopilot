@@ -12,6 +12,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -83,18 +84,26 @@ public class ElytraAutoPilot implements ClientModInitializer {
         PlayerEntity player = minecraftClient.player;
         if (!onTakeoff) {
             if (player != null) {
+                if (ModConfig.INSTANCE.elytraAutoSwap) {
+                    int elytraSlot = getElytraIndex(player);
+                    if (elytraSlot == -1) {
+                        player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.noElytraInInventory").formatted(Formatting.RED), true);
+                        return;
+                    }
+                } else {
+                    Item itemChest = player.getInventory().armor.get(2).getItem();
+                    if (itemChest != Items.ELYTRA) {
+                        player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.noElytraEquipped").formatted(Formatting.RED), true);
+                        return;
+                    }
+                    int elytraDamage = player.getInventory().armor.get(2).getMaxDamage() - player.getInventory().armor.get(2).getDamage();
+                    if (elytraDamage == 1) {
+                        player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.elytraBroken").formatted(Formatting.RED), true);
+                        return;
+                    }
+                }
                 Item itemMain = player.getMainHandStack().getItem();
                 Item itemOff = player.getOffHandStack().getItem();
-                Item itemChest = player.getInventory().armor.get(2).getItem();
-                int elytraDamage = player.getInventory().armor.get(2).getMaxDamage() - player.getInventory().armor.get(2).getDamage();
-                if (itemChest != Items.ELYTRA) {
-                    player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.noElytraEquipped").formatted(Formatting.RED), true);
-                    return;
-                }
-                if (elytraDamage == 1) {
-                    player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.elytraBroken").formatted(Formatting.RED), true);
-                    return;
-                }
                 if (itemMain != Items.FIREWORK_ROCKET && itemOff != Items.FIREWORK_ROCKET ) {
                     player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.fireworkRequired").formatted(Formatting.RED), true);
                     return;
@@ -520,5 +529,49 @@ public class ElytraAutoPilot implements ClientModInitializer {
         player.setPitch((float) (pitch + ModConfig.INSTANCE.takeOffPull*speedMod));
         pitch = player.getPitch();
         if (pitch > 90f) player.setPitch(90f);
+    }
+
+    /**
+     * @param player The player
+     * @return the first index of an elytra in the specified player's inventory
+     */
+    public static int getElytraIndex(PlayerEntity player) {
+        PlayerInventory inv = player.getInventory();
+        if (inv == null) return -1;
+
+        for (int slot : slotArray()) {
+            ItemStack stack = inv.getStack(slot);
+            // Avoid broken Elytras
+            if (stack.isOf(Items.ELYTRA) && (stack.getDamage() < stack.getMaxDamage() - 1)) {
+                return DataSlotToNetworkSlot(slot);
+            }
+        }
+        return -1;
+    }
+
+    public static int DataSlotToNetworkSlot(int index) {
+        if(index == 100)
+            index = 8;
+        else if(index == 101)
+            index = 7;
+        else if(index == 102)
+            index = 6;
+        else if(index == 103)
+            index = 5;
+        else if(index == -106 || index == 40)
+            index = 45;
+        else if(index <= 8)
+            index += 36;
+        else if(index >= 80 && index <= 83)
+            index -= 79;
+        return index;
+    }
+
+    public static int[] slotArray() {
+        int[] range = new int[37];
+        for (int i = 0; i < 9; i++) range[i] = 8 - i;
+        for (int i = 9; i < 36; i++) range[i] = 35 - (i - 9);
+        range[36] = 40;
+        return range;
     }
 }

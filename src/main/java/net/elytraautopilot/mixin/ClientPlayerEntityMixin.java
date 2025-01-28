@@ -1,14 +1,14 @@
 package net.elytraautopilot.mixin;
 
 import net.elytraautopilot.config.ModConfig;
+import net.elytraautopilot.ElytraAutoPilot;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.Items;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,13 +16,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
+
     @Unique
     private static final int CHESTPLATE_INDEX = 6;
     @Unique
     private int lastIndex = -1;
+    @Unique
+    private int lastUID = -1;
 
     @Inject(method = "tickMovement", at = @At(
             value = "INVOKE",
@@ -45,14 +47,21 @@ public class ClientPlayerEntityMixin {
     @Inject(method = "tickMovement", at = @At(value = "TAIL"))
     private void endTickMovement(CallbackInfo ci) {
         if (!ModConfig.INSTANCE.elytraAutoSwap) return;
+
         ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
         ClientPlayerInteractionManager interactionManager = MinecraftClient.getInstance().interactionManager;
-        if (player.isOnGround() || player.isTouchingWater()) {
+        if (interactionManager != null && (player.isOnGround() || player.isTouchingWater())) {
             player.checkGliding();
-            if (this.lastIndex != -1) {
-                if (interactionManager != null) {
-                    swap(lastIndex, interactionManager, player);
+            if (this.lastUID != -1) {
+                int slot = getLastChestplate(player);
+                if (slot != -1) {
+                    swap(slot, interactionManager, player);
+                    lastIndex = -1;
                 }
+                this.lastUID = -1;
+            }
+            if (this.lastIndex != -1) {
+                swap(this.lastIndex, interactionManager, player);
                 lastIndex = -1;
             }
         }
@@ -60,30 +69,15 @@ public class ClientPlayerEntityMixin {
 
     @Unique
     private void equipElytra(ClientPlayerEntity player, ClientPlayerInteractionManager interactionManager) {
-        int firstElytraIndex = this.getElytraIndex(player);
+        int firstElytraIndex = ElytraAutoPilot.getElytraIndex(player);
         if (firstElytraIndex != -1) {
             this.lastIndex = firstElytraIndex;
+            ItemStack stack = player.getInventory().armor.get(2);
+            this.lastUID = getItemUID(stack);
             swap(firstElytraIndex, interactionManager, player);
             // Send packet so server knows player is falling
             player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
         }
-    }
-
-    /**
-     * @param player The player
-     * @return the first index of an elytra in the specified player's inventory
-     */
-    @Unique
-    private int getElytraIndex(ClientPlayerEntity player) {
-        DefaultedList<ItemStack> inv = player.getInventory().main;
-        for (int i = 0; i < inv.size(); i++) {
-            ItemStack stack = inv.get(i);
-            // Avoid broken Elytras
-            if (stack.isOf(Items.ELYTRA) && (stack.getDamage() < stack.getMaxDamage() - 1)) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     @Unique
@@ -91,5 +85,25 @@ public class ClientPlayerEntityMixin {
         interactionManager.clickSlot(0, slot, 0, SlotActionType.PICKUP, player);
         interactionManager.clickSlot(0, CHESTPLATE_INDEX, 0, SlotActionType.PICKUP, player);
         interactionManager.clickSlot(0, slot, 0, SlotActionType.PICKUP, player);
+    }
+
+    @Unique
+    private static int getItemUID(ItemStack stack) {
+        if (stack.isEmpty()) return -1;
+        return stack.getName().hashCode() + stack.getEnchantments().hashCode() + stack.getDamage();
+    }
+
+    @Unique
+    private int getLastChestplate(ClientPlayerEntity player) {
+        PlayerInventory inv = player.getInventory();
+        if (inv == null) return -1;
+
+        for (int slot : ElytraAutoPilot.slotArray()) {
+            ItemStack stack = inv.getStack(slot);
+            if (getItemUID(stack) == this.lastUID) {
+                return ElytraAutoPilot.DataSlotToNetworkSlot(slot);
+            }
+        }
+        return -1;
     }
 }

@@ -35,6 +35,7 @@
   "text.elytraautopilot.flyto": "Flying to %d, %d",
   "text.elytraautopilot.flytoFail.flyingRequired": "Start flying to activate fly-to",
   "text.elytraautopilot.takeoffFail.noElytraEquipped": "Equip an elytra to start flying",
+  "text.elytraautopilot.takeoffFail.noElytraInInventory": "You don't have an usable elytra in your inventory",
   "text.elytraautopilot.takeoffFail.elytraBroken": "Your elytra is broken!",
   "text.elytraautopilot.takeoffFail.fireworkRequired": "Hold some fireworks in your hand to start flying",
   "text.elytraautopilot.takeoffFail.clearSkyNeeded": "Make sure you have a clear view of the sky above you and try again",
