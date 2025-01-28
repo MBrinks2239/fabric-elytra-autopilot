@@ -38,7 +38,8 @@ public class ClientPlayerEntityMixin {
         // Injects when the elytra should be deployed
         if (!player.isOnGround() &&
             !player.isGliding() &&
-            !player.hasStatusEffect(StatusEffects.LEVITATION)) { //&&
+            !player.hasStatusEffect(StatusEffects.LEVITATION) &&
+            !player.isTouchingWater()) { //&&
             // [Future] Replace with an event that fires before elytra take off.
             this.equipElytra(player, interactionManager);
         }

@@ -11,11 +11,17 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -539,14 +545,57 @@ public class ElytraAutoPilot implements ClientModInitializer {
         PlayerInventory inv = player.getInventory();
         if (inv == null) return -1;
 
+        var world = player.getWorld();
+
+        int bestSlot = -1;
+        ItemStack bestItemStack = null;
+        int bestPriority = Integer.MAX_VALUE;
+
         for (int slot : slotArray()) {
             ItemStack stack = inv.getStack(slot);
-            // Avoid broken Elytras
-            if (stack.isOf(Items.ELYTRA) && (stack.getDamage() < stack.getMaxDamage() - 1)) {
-                return DataSlotToNetworkSlot(slot);
+            if (!stack.isOf(Items.ELYTRA) || stack.getDamage() >= stack.getMaxDamage() - 1) {
+                continue;
+            }
+
+            boolean hasMending = elytraHasMending(stack, world);
+            int unbreakingLevel = elytraGetUnbreakingLevel(stack, world);
+
+            int priority;
+            if (hasMending && unbreakingLevel > 0) {
+                priority = 1;
+            } else if (hasMending) {
+                priority = 2;
+            } else if (unbreakingLevel > 0) {
+                priority = 3;
+            } else {
+                priority = 4;
+            }
+
+            if (priority < bestPriority || (priority == bestPriority && stack.getDamage() > bestItemStack.getDamage())) {
+                bestSlot = slot;
+                bestItemStack = stack;
+                bestPriority = priority;
             }
         }
-        return -1;
+        return DataSlotToNetworkSlot(bestSlot);
+    }
+
+    private static boolean elytraHasMending(ItemStack elytra, World world) {
+        var registry = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT);
+        if(registry.isEmpty() || registry.get().getEntry(Enchantments.MENDING.getValue()).isEmpty())
+            return false;
+
+        int res = EnchantmentHelper.getLevel(registry.get().getEntry(Enchantments.MENDING.getValue()).get(), elytra);
+
+        return res > 0;
+    }
+
+    private static int elytraGetUnbreakingLevel(ItemStack elytra, World world) {
+        var registry = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT);
+        if(registry.isEmpty() || registry.get().getEntry(Enchantments.UNBREAKING.getValue()).isEmpty())
+            return 0;
+
+        return EnchantmentHelper.getLevel(registry.get().getEntry(Enchantments.UNBREAKING.getValue()).get(), elytra);
     }
 
     public static int DataSlotToNetworkSlot(int index) {
