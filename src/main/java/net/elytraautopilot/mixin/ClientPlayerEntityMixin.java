@@ -36,10 +36,7 @@ public class ClientPlayerEntityMixin {
         ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
         ClientPlayerInteractionManager interactionManager = MinecraftClient.getInstance().interactionManager;
         // Injects when the elytra should be deployed
-        if (!player.isOnGround() &&
-            !player.isGliding() &&
-            !player.hasStatusEffect(StatusEffects.LEVITATION) &&
-            !player.isTouchingWater()) { //&&
+        if (canGlide(player)) { //&&
             // [Future] Replace with an event that fires before elytra take off.
             this.equipElytra(player, interactionManager);
         }
@@ -106,5 +103,15 @@ public class ClientPlayerEntityMixin {
             }
         }
         return -1;
+    }
+
+    @Unique
+    private static boolean canGlide(ClientPlayerEntity player) {
+        return !player.isOnGround() &&
+                !player.isGliding() &&
+                !player.hasStatusEffect(StatusEffects.LEVITATION) &&
+                !player.isTouchingWater() &&
+                !player.isInLava() &&
+                !player.hasVehicle();
     }
 }
