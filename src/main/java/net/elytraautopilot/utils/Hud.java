@@ -22,13 +22,10 @@ public class Hud {
     private static int _index = -1;
     public static Text[] hudString;
 
-
     public static void tick() {
         _tick++;
     }
     public static void drawHud(PlayerEntity player) {
-        String modid = ElytraAutoPilot.getModId();
-        MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
         double altitude = player.getPos().y;
         double avgVelocity = 0f;
@@ -79,44 +76,44 @@ public class Hud {
             hudString[9] = Text.of("");
             return;
         }
-        hudString[0] = Text.translatable("text." + modid + ".hud.toggleAutoFlight")
-                .append(Text.translatable(autoFlight ? "text." + modid + ".hud.true" : "text." + modid + ".hud.false")
+        hudString[0] = Text.translatable("text.elytraautopilot.hud.toggleAutoFlight")
+                .append(Text.translatable(autoFlight ? "text.elytraautopilot.hud.true" : "text.elytraautopilot.hud.false")
                         .formatted(autoFlight ? Formatting.GREEN : Formatting.RED));
 
-        hudString[1] = Text.translatable("text." + modid + ".hud.altitude", String.format("%.2f", altitude))
+        hudString[1] = Text.translatable("text.elytraautopilot.hud.altitude", String.format("%.2f", altitude))
                 .formatted(Formatting.AQUA);
-        hudString[2] = Text.translatable("text." + modid + ".hud.heightFromGround", (groundheight == -1f ? "???" : String.valueOf(Math.round(groundheight))))
+        hudString[2] = Text.translatable("text.elytraautopilot.hud.heightFromGround", (groundheight == -1f ? "???" : String.valueOf(Math.round(groundheight))))
                 .formatted(Formatting.AQUA);
-        hudString[3] = Text.translatable("text." + modid + ".hud.neededHeight")
+        hudString[3] = Text.translatable("text.elytraautopilot.hud.neededHeight")
                 .formatted(Formatting.AQUA)
                 .append(Text.literal(groundheight > ModConfig.INSTANCE.minHeight ? "Ready" : String.valueOf(Math.round(ModConfig.INSTANCE.minHeight-groundheight)))
                         .formatted(groundheight > ModConfig.INSTANCE.minHeight ? Formatting.GREEN : Formatting.RED));
-        hudString[4] = Text.translatable("text." + modid + ".hud.speed", String.format("%.2f", currentVelocity * 20))
+        hudString[4] = Text.translatable("text.elytraautopilot.hud.speed", String.format("%.2f", currentVelocity * 20))
                 .formatted(Formatting.YELLOW);
         if (avgVelocity == 0f) {
-            hudString[5] = Text.translatable("text." + modid + ".hud.calculating")
+            hudString[5] = Text.translatable("text.elytraautopilot.hud.calculating")
                     .formatted(Formatting.WHITE);
             hudString[6] = Text.of("");
         }
         else {
-            hudString[5] = Text.translatable("text." + modid + ".hud.avgSpeed", String.format("%.2f", avgVelocity * 20))
+            hudString[5] = Text.translatable("text.elytraautopilot.hud.avgSpeed", String.format("%.2f", avgVelocity * 20))
                     .formatted(Formatting.YELLOW);
-            hudString[6] = Text.translatable("text." + modid + ".hud.avgHSpeed", String.format("%.2f", avgHorizontalVelocity * 20))
+            hudString[6] = Text.translatable("text.elytraautopilot.hud.avgHSpeed", String.format("%.2f", avgHorizontalVelocity * 20))
                     .formatted(Formatting.YELLOW);
         }
         if (isflytoActive && !forceLand) {
-            hudString[7] = Text.translatable("text." + modid + ".flyto", argXpos, argZpos)
+            hudString[7] = Text.translatable("text.elytraautopilot.flyto", argXpos, argZpos)
                     .formatted(Formatting.LIGHT_PURPLE);
             if (distance != 0f) {
-                hudString[8] = Text.translatable("text." + modid + ".hud.eta", String.valueOf(Math.round(distance/(avgHorizontalVelocity * 20))))
+                hudString[8] = Text.translatable("text.elytraautopilot.hud.eta", String.valueOf(Math.round(distance/(avgHorizontalVelocity * 20))))
                         .formatted(Formatting.LIGHT_PURPLE);
             }
-            hudString[9] = Text.translatable("text." + modid + ".hud.autoLand")
+            hudString[9] = Text.translatable("text.elytraautopilot.hud.autoLand")
                     .formatted(Formatting.LIGHT_PURPLE)
-                    .append(Text.translatable(ModConfig.INSTANCE.autoLanding ? "text." + modid + ".hud.enabled" : "text." + modid + ".hud.disabled")
+                    .append(Text.translatable(ModConfig.INSTANCE.autoLanding ? "text.elytraautopilot.hud.enabled" : "text.elytraautopilot.hud.disabled")
                             .formatted(ModConfig.INSTANCE.autoLanding ? Formatting.GREEN : Formatting.RED));
             if (isLanding) {
-                hudString[8] = Text.translatable("text." + modid + ".hud.landing")
+                hudString[8] = Text.translatable("text.elytraautopilot.hud.landing")
                         .formatted(Formatting.LIGHT_PURPLE);
             }
         }
@@ -126,7 +123,7 @@ public class Hud {
             hudString[9] = Text.of("");
         }
         if (forceLand) {
-            hudString[7] = Text.translatable("text." + modid + ".hud.landing")
+            hudString[7] = Text.translatable("text.elytraautopilot.hud.landing")
                     .formatted(Formatting.LIGHT_PURPLE);
         }
     }
