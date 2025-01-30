@@ -110,8 +110,18 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 }
                 Item itemMain = player.getMainHandStack().getItem();
                 Item itemOff = player.getOffHandStack().getItem();
+                Item itemChest = player.getInventory().armor.get(2).getItem();
+                int elytraDamage = player.getInventory().armor.get(2).getMaxDamage() - player.getInventory().armor.get(2).getDamage();
+                if (itemChest != Items.ELYTRA) {
+                    player.sendMessage(Text.translatable("text.elytraautopilot.takeoffFail.noElytraEquipped").formatted(Formatting.RED), true);
+                    return;
+                }
+                if (elytraDamage == 1) {
+                    player.sendMessage(Text.translatable("text.elytraautopilot.takeoffFail.elytraBroken").formatted(Formatting.RED), true);
+                    return;
+                }
                 if (itemMain != Items.FIREWORK_ROCKET && itemOff != Items.FIREWORK_ROCKET ) {
-                    player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.fireworkRequired").formatted(Formatting.RED), true);
+                    player.sendMessage(Text.translatable("text.elytraautopilot.takeoffFail.fireworkRequired").formatted(Formatting.RED), true);
                     return;
                 }
 
@@ -123,7 +133,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 for (double i = c; i < l; i++) {
                     BlockPos blockPos = BlockPos.ofFloored(clientPos.getX(), clientPos.getY() + n, clientPos.getZ());
                     if (!world.getBlockState(blockPos).isAir()) {
-                        player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.clearSkyNeeded").formatted(Formatting.RED), true);
+                        player.sendMessage(Text.translatable("text.elytraautopilot.takeoffFail.clearSkyNeeded").formatted(Formatting.RED), true);
                         return;
                     }
                     n++;
@@ -143,7 +153,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 if (isChained) {
                     isflytoActive = true;
                     isChained = false;
-                    minecraftClient.inGameHud.getChatHud().addMessage(Text.translatable("text." + MODID + ".flyto", argXpos, argZpos).formatted(Formatting.GREEN));
+                    minecraftClient.inGameHud.getChatHud().addMessage(Text.translatable("text.elytraautopilot.flyto", argXpos, argZpos).formatted(Formatting.GREEN));
                 }
                 return;
             }
@@ -156,7 +166,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                     minecraftClient.options.useKey.setPressed(false);
                     minecraftClient.options.jumpKey.setPressed(false);
                     onTakeoff = false;
-                    player.sendMessage(Text.translatable("text." + MODID + ".takeoffAbort.noFirework").formatted(Formatting.RED), true);
+                    player.sendMessage(Text.translatable("text.elytraautopilot.takeoffAbort.noFirework").formatted(Formatting.RED), true);
                     doGlide = true;
                 }
             }
@@ -373,7 +383,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
         if(!configPressed && KeyBindings.configBinding.isPressed()) {
             if (player.isGliding()) {
                 if (!autoFlight && groundheight < ModConfig.INSTANCE.minHeight){
-                    player.sendMessage(Text.translatable("text." + MODID + ".autoFlightFail.tooLow").formatted(Formatting.RED), true);
+                    player.sendMessage(Text.translatable("text.elytraautopilot.autoFlightFail.tooLow").formatted(Formatting.RED), true);
                     doGlide = true;
                 }
                 else {
@@ -475,7 +485,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                             player
                     );
                     player.playSound(SoundEvents.ITEM_ARMOR_EQUIP_ELYTRA.value(), 1.0F, 1.0F);
-                    player.sendMessage(Text.translatable("text." + MODID + ".swappedElytra").formatted(Formatting.GREEN), true);
+                    player.sendMessage(Text.translatable("text.elytraautopilot.swappedElytra").formatted(Formatting.GREEN), true);
                 }
                 else {
                     return false;

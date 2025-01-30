@@ -103,12 +103,12 @@ public class ModConfig {
 
     public static Screen createConfigScreen(Screen parent) {
         return YetAnotherConfigLib.createBuilder()
-                .title(Text.of("Elytra Autopilot config"))
+                .title(Text.translatable("config.elytraautopilot.gui"))
                 .category(ConfigCategory.createBuilder()
-                        .name(Text.of("GUI"))
+                        .name(Text.translatable("config.elytraautopilot.gui"))
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.of("Show GUI"))
-                                .description(OptionDescription.of(Text.of("Toggle for if the flight GUI should be shown while flying")))
+                                .name(Text.translatable("config.elytraautopilot.gui.showgui"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.showgui.desc")))
                                 .binding(
                                         showGuiDefault,
                                         () -> ModConfig.INSTANCE.showGui,
@@ -116,8 +116,8 @@ public class ModConfig {
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
                         .option(Option.<Integer>createBuilder()
-                                .name(Text.of("GUI Scale"))
-                                .description(OptionDescription.of(Text.of("Scale of the flight GUI")))
+                                .name(Text.translatable("config.elytraautopilot.gui.guiScale"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.guiScale.desc")))
                                 .binding(
                                         guiScaleDefault,
                                         () -> ModConfig.INSTANCE.guiScale,
@@ -126,8 +126,8 @@ public class ModConfig {
                                         .range(minGuiScale, maxGuiScale).step(1))
                                 .build())
                         .option(Option.<Integer>createBuilder()
-                                .name(Text.of("GUI X Position"))
-                                .description(OptionDescription.of(Text.of("X position of the flight GUI")))
+                                .name(Text.translatable("config.elytraautopilot.gui.guiX"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.guiX.desc")))
                                 .binding(
                                         guiXDefault,
                                         () -> ModConfig.INSTANCE.guiX,
@@ -138,8 +138,8 @@ public class ModConfig {
                                                 .max(maxGuiX))
                                 .build())
                         .option(Option.<Integer>createBuilder()
-                                .name(Text.of("GUI Y Position"))
-                                .description(OptionDescription.of(Text.of("Y position of the flight GUI")))
+                                .name(Text.translatable("config.elytraautopilot.gui.guiY"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.guiY.desc")))
                                 .binding(
                                         guiYDefault,
                                         () -> ModConfig.INSTANCE.guiY,
@@ -151,10 +151,10 @@ public class ModConfig {
                                 .build())
                         .build())
                 .category(ConfigCategory.createBuilder()
-                        .name(Text.of("Flight Profile"))
+                        .name(Text.translatable("config.elytraautopilot.flightprofile"))
                         .option(Option.<Integer>createBuilder()
-                                .name(Text.of("Max Height"))
-                                .description(OptionDescription.of(Text.of("Maximum flight height")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.maxHeight"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.maxHeight.desc")))
                                 .binding(
                                         maxHeightDefault,
                                         () -> ModConfig.INSTANCE.maxHeight,
@@ -165,8 +165,8 @@ public class ModConfig {
                                                 .max(maxMaxHeight))
                                 .build())
                         .option(Option.<Integer>createBuilder()
-                                .name(Text.of("Min Height"))
-                                .description(OptionDescription.of(Text.of("Minimum flight height")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.minHeight"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.minHeight.desc")))
                                 .binding(
                                         minHeightDefault,
                                         () -> ModConfig.INSTANCE.minHeight,
@@ -177,8 +177,8 @@ public class ModConfig {
                                                 .max(maxMinHeight))
                                 .build())
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.of("Auto Landing"))
-                                .description(OptionDescription.of(Text.of("Toggle for automatic landing")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.autoLanding"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.autoLanding.desc")))
                                 .binding(
                                         autoLandingDefault,
                                         () -> ModConfig.INSTANCE.autoLanding,
@@ -186,8 +186,8 @@ public class ModConfig {
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
                         .option(Option.<String>createBuilder()
-                                .name(Text.of("Play Sound On Landing"))
-                                .description(OptionDescription.of(Text.of("Sound to play on landing")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.playSoundOnLanding"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.playSoundOnLanding.desc")))
                                 .binding(
                                         playSoundOnLandingDefault,
                                         () -> ModConfig.INSTANCE.playSoundOnLanding,
@@ -195,8 +195,8 @@ public class ModConfig {
                                 .controller(StringControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Auto Land Speed"))
-                                .description(OptionDescription.of(Text.of("Speed for automatic landing")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.autoLandSpeed"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.autoLandSpeed.desc")))
                                 .binding(
                                         autoLandSpeedDefault,
                                         () -> ModConfig.INSTANCE.autoLandSpeed,
@@ -204,8 +204,8 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Turning Speed"))
-                                .description(OptionDescription.of(Text.of("Turning speed of the flight")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.turningSpeed"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.turningSpeed.desc")))
                                 .binding(
                                         turningSpeedDefault,
                                         () -> ModConfig.INSTANCE.turningSpeed,
@@ -213,8 +213,8 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Take Off Pull"))
-                                .description(OptionDescription.of(Text.of("Pull force during take off")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.takeOffPull"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.takeOffPull.desc")))
                                 .binding(
                                         takeOffPullDefault,
                                         () -> ModConfig.INSTANCE.takeOffPull,
@@ -222,8 +222,8 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.of("Risky Landing"))
-                                .description(OptionDescription.of(Text.of("Enable risky landing mode")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.riskyLanding"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.riskyLanding.desc")))
                                 .binding(
                                         riskyLandingDefault,
                                         () -> ModConfig.INSTANCE.riskyLanding,
@@ -231,8 +231,8 @@ public class ModConfig {
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.of("Powered Flight"))
-                                .description(OptionDescription.of(Text.of("Enable powered flight mode")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.poweredFlight"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.poweredFlight.desc")))
                                 .binding(
                                         poweredFlightDefault,
                                         () -> ModConfig.INSTANCE.poweredFlight,
@@ -240,8 +240,8 @@ public class ModConfig {
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.of("Elytra Hotswap"))
-                                .description(OptionDescription.of(Text.of("Enable automatic elytra hotswap")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.elytraHotswap"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.elytraHotswap.desc")))
                                 .binding(
                                         elytraHotswapDefault,
                                         () -> ModConfig.INSTANCE.elytraHotswap,
@@ -249,8 +249,8 @@ public class ModConfig {
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.of("Firework Hotswap"))
-                                .description(OptionDescription.of(Text.of("Enable automatic firework hotswap")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.fireworkHotswap"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.fireworkHotswap.desc")))
                                 .binding(
                                         fireworkHotswapDefault,
                                         () -> ModConfig.INSTANCE.fireworkHotswap,
@@ -258,8 +258,8 @@ public class ModConfig {
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
                         .option(Option.<Boolean>createBuilder()
-                                .name(Text.of("Emergency Land"))
-                                .description(OptionDescription.of(Text.of("Enable emergency landing mode")))
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.emergencyLand"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.emergencyLand.desc")))
                                 .binding(
                                         emergencyLandDefault,
                                         () -> ModConfig.INSTANCE.emergencyLand,
@@ -277,10 +277,10 @@ public class ModConfig {
                                 .build())
                         .build())
                 .category(ConfigCategory.createBuilder()
-                        .name(Text.of("Advanced"))
+                        .name(Text.translatable("config.elytraautopilot.advanced"))
                         .option(Option.<Integer>createBuilder()
-                                .name(Text.of("Ground Check Ticks"))
-                                .description(OptionDescription.of(Text.of("Number of ticks to check the ground")))
+                                .name(Text.translatable("config.elytraautopilot.advanced.groundCheckTicks"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.groundCheckTicks.desc")))
                                 .binding(
                                         groundCheckTicksDefault,
                                         () -> ModConfig.INSTANCE.groundCheckTicks,
@@ -288,8 +288,8 @@ public class ModConfig {
                                 .controller(IntegerFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Pull Up Angle"))
-                                .description(OptionDescription.of(Text.of("Angle for pulling up during flight")))
+                                .name(Text.translatable("config.elytraautopilot.advanced.pullUpAngle"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.pullUpAngle.desc")))
                                 .binding(
                                         pullUpAngleDefault,
                                         () -> ModConfig.INSTANCE.pullUpAngle,
@@ -297,8 +297,8 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Pull Down Angle"))
-                                .description(OptionDescription.of(Text.of("Angle for pulling down during flight")))
+                                .name(Text.translatable("config.elytraautopilot.advanced.pullDownAngle"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.pullDownAngle.desc")))
                                 .binding(
                                         pullDownAngleDefault,
                                         () -> ModConfig.INSTANCE.pullDownAngle,
@@ -306,8 +306,8 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Pull Up Min Velocity"))
-                                .description(OptionDescription.of(Text.of("Minimum velocity for pulling up during flight")))
+                                .name(Text.translatable("config.elytraautopilot.advanced.pullUpMinVelocity"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.pullUpMinVelocity.desc")))
                                 .binding(
                                         pullUpMinVelocityDefault,
                                         () -> ModConfig.INSTANCE.pullUpMinVelocity,
@@ -315,8 +315,8 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Pull Down Max Velocity"))
-                                .description(OptionDescription.of(Text.of("Maximum velocity for pulling down during flight")))
+                                .name(Text.translatable("config.elytraautopilot.advanced.pullDownMaxVelocity"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.pullDownMaxVelocity.desc")))
                                 .binding(
                                         pullDownMaxVelocityDefault,
                                         () -> ModConfig.INSTANCE.pullDownMaxVelocity,
@@ -324,8 +324,8 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Pull Up Speed"))
-                                .description(OptionDescription.of(Text.of("Speed for pulling up during flight")))
+                                .name(Text.translatable("config.elytraautopilot.advanced.pullUpSpeed"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.pullUpSpeed.desc")))
                                 .binding(
                                         pullUpSpeedDefault,
                                         () -> ModConfig.INSTANCE.pullUpSpeed,
@@ -333,8 +333,8 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(Option.<Double>createBuilder()
-                                .name(Text.of("Pull Down Speed"))
-                                .description(OptionDescription.of(Text.of("Speed for pulling down during flight")))
+                                .name(Text.translatable("config.elytraautopilot.advanced.pullDownSpeed"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.pullDownSpeed.desc")))
                                 .binding(
                                         pullDownSpeedDefault,
                                         () -> ModConfig.INSTANCE.pullDownSpeed,
@@ -342,7 +342,7 @@ public class ModConfig {
                                 .controller(DoubleFieldControllerBuilder::create)
                                 .build())
                         .option(ListOption.<String>createBuilder()
-                                .name(Text.of("Fly Locations"))
+                                .name(Text.translatable("config.elytraautopilot.advanced.flyLocations"))
                                 .binding(
                                         flyLocationsDefault,
                                         () -> ModConfig.INSTANCE.flyLocations,

@@ -8,7 +8,7 @@ import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.exceptions.InvalidLocationException;
 import net.elytraautopilot.types.FlyToLocation;
 import net.elytraautopilot.utils.CommandSuggestionProvider;
-import net.elytraautopilot.xearomapintegration.XearomapWaypointReader;
+import net.elytraautopilot.xaeromapintegration.XaeromapWaypointReader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -44,7 +44,7 @@ public class ClientCommands {
                                     }
 
                                     if(isXaeroMinimapInstalled) {
-                                        String[] xaeroLocations = XearomapWaypointReader.GetXearomapWaypoints();
+                                        String[] xaeroLocations = XaeromapWaypointReader.GetXearomapWaypoints();
                                         if(xaeroLocations != null) {
                                             int xaeroResult = TryFlyTo(xaeroLocations, locationName, minecraftClient, context);
                                             if(xaeroResult == 1) {
@@ -109,7 +109,7 @@ public class ClientCommands {
                                         return 1;
 
                                     if(isXaeroMinimapInstalled) {
-                                        String[] xaeroLocations = XearomapWaypointReader.GetXearomapWaypoints();
+                                        String[] xaeroLocations = XaeromapWaypointReader.GetXearomapWaypoints();
                                         if (xaeroLocations != null) {
                                             int successXaeroTakeOff = TryTakeoff(xaeroLocations, locationName);
                                             if (successXaeroTakeOff == 1)

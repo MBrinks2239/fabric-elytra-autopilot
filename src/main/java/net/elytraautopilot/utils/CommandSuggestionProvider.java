@@ -5,7 +5,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.elytraautopilot.config.ModConfig;
-import net.elytraautopilot.xearomapintegration.XearomapWaypointReader;
+import net.elytraautopilot.xaeromapintegration.XaeromapWaypointReader;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -22,7 +22,7 @@ public class CommandSuggestionProvider implements SuggestionProvider<FabricClien
         }
 
         if(FabricLoader.getInstance().isModLoaded("xaerominimap")) {
-            var waypoints = XearomapWaypointReader.GetXearomapWaypoints();
+            var waypoints = XaeromapWaypointReader.GetXearomapWaypoints();
 
             if(waypoints != null) {
                 for (String s : waypoints) {
