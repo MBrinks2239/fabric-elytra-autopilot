@@ -53,6 +53,8 @@
   "config.elytraautopilot.advanced.pullUpSpeed.desc": "Speed for pulling up during flight",
   "config.elytraautopilot.advanced.pullDownSpeed": "Pull Down Speed",
   "config.elytraautopilot.advanced.pullDownSpeed.desc": "Speed for pulling down during flight",
+  "config.elytraautopilot.advanced.elytraReplaceDurability": "Elytra replace at durability",
+  "config.elytraautopilot.advanced.elytraReplaceDurability.desc": "At which durability an elytra is considered unusable and will either be replaced or forcelanded if enabled",
   "config.elytraautopilot.advanced.flyLocations": "Fly Locations",
   "text.elytraautopilot.landing": "Now landing!",
   "text.elytraautopilot.flyto": "Flying to %d, %d",

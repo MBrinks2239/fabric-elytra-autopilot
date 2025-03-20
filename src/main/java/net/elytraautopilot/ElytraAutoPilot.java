@@ -11,6 +11,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -34,6 +36,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static net.elytraautopilot.utils.ElytraManager.*;
 
 public class ElytraAutoPilot implements ClientModInitializer {
     public static final String MODID = "elytraautopilot";
@@ -87,7 +91,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
     }
 	public static void takeoff()
     {
-        PlayerEntity player = minecraftClient.player;
+        ClientPlayerEntity player = minecraftClient.player;
         if (!onTakeoff) {
             if (player != null) {
                 if (ModConfig.INSTANCE.elytraAutoSwap) {
@@ -96,6 +100,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                         player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.noElytraInInventory").formatted(Formatting.RED), true);
                         return;
                     }
+                    equipElytra(player);
                 } else {
                     Item itemChest = player.getInventory().armor.get(2).getItem();
                     if (itemChest != Items.ELYTRA) {
@@ -297,7 +302,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
             ClientCommands.bufferSave = false;
         }
 
-        PlayerEntity player = minecraftClient.player;
+        ClientPlayerEntity player = minecraftClient.player;
 
         if (player == null){
             autoFlight = false;
@@ -315,10 +320,20 @@ public class ElytraAutoPilot implements ClientModInitializer {
 
         double altitude;
         if (autoFlight) {
-            // Elytra hotswap
-            if (!tryRestockElytra(player) && ModConfig.INSTANCE.emergencyLand) {
-                forceLand = true;
+
+            if(ModConfig.INSTANCE.emergencyLand && getElytraDurability(player) < ModConfig.INSTANCE.elytraReplaceDurability) {
+                if (ModConfig.INSTANCE.elytraAutoSwap) {
+                    if(canRestockElytra(player)) {
+                        forceLand = !tryRestockElytra(player);
+                    } else {
+                        forceLand = true;
+                    }
+                }
+                else {
+                    forceLand = true;
+                }
             }
+
 
             altitude = player.getPos().y;
 
@@ -458,42 +473,15 @@ public class ElytraAutoPilot implements ClientModInitializer {
         return false;
     }
 
-    private static boolean tryRestockElytra(PlayerEntity player) {
-        int elytraDurability = player.getInventory().armor.get(2).getMaxDamage() - player.getInventory().armor.get(2).getDamage();
+    private static boolean tryRestockElytra(ClientPlayerEntity player) {
         if (ModConfig.INSTANCE.elytraHotswap) {
-            if (elytraDurability <= 5) { // Leave some leeway, so we don't stop flying
-                // Optimization: find the first elytra with sufficient durability
-                ItemStack newElytra = null;
-                int minDurability = 10;
-                for (ItemStack itemStack : player.getInventory().main) {
-                    if (itemStack.getItem() == Items.ELYTRA) {
-                        int itemDurability = itemStack.getMaxDamage() - itemStack.getDamage();
-                        if (itemDurability >= minDurability) {
-                            newElytra = itemStack;
-                            break;
-                        }
-                    }
-                }
-                if (newElytra != null) {
-                    int chestSlot = 6;
-                    assert minecraftClient.interactionManager != null;
-                    minecraftClient.interactionManager.clickSlot(
-                            player.playerScreenHandler.syncId,
-                            chestSlot,
-                            player.getInventory().main.indexOf(newElytra),
-                            SlotActionType.SWAP,
-                            player
-                    );
-                    player.playSound(SoundEvents.ITEM_ARMOR_EQUIP_ELYTRA.value(), 1.0F, 1.0F);
-                    player.sendMessage(Text.translatable("text.elytraautopilot.swappedElytra").formatted(Formatting.GREEN), true);
-                }
-                else {
-                    return false;
-                }
-            }
+            return equipElytra(player);
         }
-        else return elytraDurability > 30;
-        return true;
+        return false;
+    }
+
+    private static boolean canRestockElytra(ClientPlayerEntity player) {
+        return getElytraIndex(player) != -1;
     }
 
     private void computeVelocity()
@@ -545,92 +533,5 @@ public class ElytraAutoPilot implements ClientModInitializer {
         player.setPitch((float) (pitch + ModConfig.INSTANCE.takeOffPull*speedMod));
         pitch = player.getPitch();
         if (pitch > 90f) player.setPitch(90f);
-    }
-
-    /**
-     * @param player The player
-     * @return the first index of an elytra in the specified player's inventory
-     */
-    public static int getElytraIndex(PlayerEntity player) {
-        PlayerInventory inv = player.getInventory();
-        if (inv == null) return -1;
-
-        var world = player.getWorld();
-
-        int bestSlot = -1;
-        ItemStack bestItemStack = null;
-        int bestPriority = Integer.MAX_VALUE;
-
-        for (int slot : slotArray()) {
-            ItemStack stack = inv.getStack(slot);
-            if (!stack.isOf(Items.ELYTRA) || stack.getDamage() >= stack.getMaxDamage() - 1) {
-                continue;
-            }
-
-            boolean hasMending = elytraHasMending(stack, world);
-            int unbreakingLevel = elytraGetUnbreakingLevel(stack, world);
-
-            int priority;
-            if (hasMending && unbreakingLevel > 0) {
-                priority = 1;
-            } else if (hasMending) {
-                priority = 2;
-            } else if (unbreakingLevel > 0) {
-                priority = 3;
-            } else {
-                priority = 4;
-            }
-
-            if (priority < bestPriority || (priority == bestPriority && stack.getDamage() > bestItemStack.getDamage())) {
-                bestSlot = slot;
-                bestItemStack = stack;
-                bestPriority = priority;
-            }
-        }
-        return DataSlotToNetworkSlot(bestSlot);
-    }
-
-    private static boolean elytraHasMending(ItemStack elytra, World world) {
-        var registry = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT);
-        if(registry.isEmpty() || registry.get().getEntry(Enchantments.MENDING.getValue()).isEmpty())
-            return false;
-
-        int res = EnchantmentHelper.getLevel(registry.get().getEntry(Enchantments.MENDING.getValue()).get(), elytra);
-
-        return res > 0;
-    }
-
-    private static int elytraGetUnbreakingLevel(ItemStack elytra, World world) {
-        var registry = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT);
-        if(registry.isEmpty() || registry.get().getEntry(Enchantments.UNBREAKING.getValue()).isEmpty())
-            return 0;
-
-        return EnchantmentHelper.getLevel(registry.get().getEntry(Enchantments.UNBREAKING.getValue()).get(), elytra);
-    }
-
-    public static int DataSlotToNetworkSlot(int index) {
-        if(index == 100)
-            index = 8;
-        else if(index == 101)
-            index = 7;
-        else if(index == 102)
-            index = 6;
-        else if(index == 103)
-            index = 5;
-        else if(index == -106 || index == 40)
-            index = 45;
-        else if(index <= 8)
-            index += 36;
-        else if(index >= 80 && index <= 83)
-            index -= 79;
-        return index;
-    }
-
-    public static int[] slotArray() {
-        int[] range = new int[37];
-        for (int i = 0; i < 9; i++) range[i] = 8 - i;
-        for (int i = 9; i < 36; i++) range[i] = 35 - (i - 9);
-        range[36] = 40;
-        return range;
     }
 }
