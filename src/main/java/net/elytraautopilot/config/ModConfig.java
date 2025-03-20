@@ -68,6 +68,7 @@ public class ModConfig {
     public static final double pullDownMaxVelocityDefault = 2.33;
     public static final double pullUpSpeedDefault = 2.16;
     public static final double pullDownSpeedDefault = 0.21;
+    public static final int elytraReplaceDurabilityDefault = 10;
     public static List<String> flyLocationsDefault = new ArrayList<>();
 
     // Gui values
@@ -99,6 +100,7 @@ public class ModConfig {
     public double pullDownMaxVelocity = pullDownMaxVelocityDefault;
     public double pullUpSpeed = pullUpSpeedDefault;
     public double pullDownSpeed = pullDownSpeedDefault;
+    public int elytraReplaceDurability = elytraReplaceDurabilityDefault;
     public List<String> flyLocations = flyLocationsDefault;
 
     public static Screen createConfigScreen(Screen parent) {
@@ -340,6 +342,15 @@ public class ModConfig {
                                         () -> ModConfig.INSTANCE.pullDownSpeed,
                                         newVal -> ModConfig.INSTANCE.pullDownSpeed = newVal)
                                 .controller(DoubleFieldControllerBuilder::create)
+                                .build())
+                        .option(Option.<Integer>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.advanced.elytraReplaceDurability"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.elytraReplaceDurability.desc")))
+                                .binding(
+                                        elytraReplaceDurabilityDefault,
+                                        () -> ModConfig.INSTANCE.elytraReplaceDurability,
+                                        newVal -> ModConfig.INSTANCE.elytraReplaceDurability = newVal)
+                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(3).max(430))
                                 .build())
                         .option(ListOption.<String>createBuilder()
                                 .name(Text.translatable("config.elytraautopilot.advanced.flyLocations"))

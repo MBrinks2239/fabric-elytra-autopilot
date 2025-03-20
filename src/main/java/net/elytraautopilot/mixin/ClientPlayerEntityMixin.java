@@ -16,15 +16,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static net.elytraautopilot.utils.ElytraManager.*;
+
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
-
-    @Unique
-    private static final int CHESTPLATE_INDEX = 6;
-    @Unique
-    private int lastIndex = -1;
-    @Unique
-    private int lastUID = -1;
 
     @Inject(method = "tickMovement", at = @At(
             value = "INVOKE",
@@ -34,11 +29,10 @@ public class ClientPlayerEntityMixin {
         if (!ModConfig.INSTANCE.elytraAutoSwap) return;
 
         ClientPlayerEntity player = (ClientPlayerEntity) (Object) this;
-        ClientPlayerInteractionManager interactionManager = MinecraftClient.getInstance().interactionManager;
         // Injects when the elytra should be deployed
         if (canGlide(player)) { //&&
             // [Future] Replace with an event that fires before elytra take off.
-            this.equipElytra(player, interactionManager);
+            equipElytra(player);
         }
     }
 
@@ -50,59 +44,10 @@ public class ClientPlayerEntityMixin {
         ClientPlayerInteractionManager interactionManager = MinecraftClient.getInstance().interactionManager;
         if (interactionManager != null && (player.isOnGround() || player.isTouchingWater())) {
             player.checkGliding();
-            if (this.lastUID != -1) {
-                int slot = getLastChestplate(player);
-                if (slot != -1) {
-                    swap(slot, interactionManager, player);
-                    lastIndex = -1;
-                }
-                this.lastUID = -1;
-            }
-            if (this.lastIndex != -1) {
-                swap(this.lastIndex, interactionManager, player);
-                lastIndex = -1;
+            if (autoSwapIsActive) {
+               equipChestplate(player);
             }
         }
-    }
-
-    @Unique
-    private void equipElytra(ClientPlayerEntity player, ClientPlayerInteractionManager interactionManager) {
-        int firstElytraIndex = ElytraAutoPilot.getElytraIndex(player);
-        if (firstElytraIndex != -1) {
-            this.lastIndex = firstElytraIndex;
-            ItemStack stack = player.getInventory().armor.get(2);
-            this.lastUID = getItemUID(stack);
-            swap(firstElytraIndex, interactionManager, player);
-            // Send packet so server knows player is falling
-            player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
-        }
-    }
-
-    @Unique
-    private static void swap(int slot, ClientPlayerInteractionManager interactionManager, ClientPlayerEntity player) {
-        interactionManager.clickSlot(0, slot, 0, SlotActionType.PICKUP, player);
-        interactionManager.clickSlot(0, CHESTPLATE_INDEX, 0, SlotActionType.PICKUP, player);
-        interactionManager.clickSlot(0, slot, 0, SlotActionType.PICKUP, player);
-    }
-
-    @Unique
-    private static int getItemUID(ItemStack stack) {
-        if (stack.isEmpty()) return -1;
-        return stack.getName().hashCode() + stack.getEnchantments().hashCode() + stack.getDamage();
-    }
-
-    @Unique
-    private int getLastChestplate(ClientPlayerEntity player) {
-        PlayerInventory inv = player.getInventory();
-        if (inv == null) return -1;
-
-        for (int slot : ElytraAutoPilot.slotArray()) {
-            ItemStack stack = inv.getStack(slot);
-            if (getItemUID(stack) == this.lastUID) {
-                return ElytraAutoPilot.DataSlotToNetworkSlot(slot);
-            }
-        }
-        return -1;
     }
 
     @Unique
