@@ -57,6 +57,7 @@ public class ModConfig {
     public static final boolean poweredFlightDefault = false;
     public static final boolean elytraHotswapDefault = true;
     public static final boolean fireworkHotswapDefault = true;
+    public static final int elytraReplaceDurabilityDefault = 20;
     public static final boolean emergencyLandDefault = true;
     public static final boolean elytraAutoSwapDefault = false;
 
@@ -68,7 +69,6 @@ public class ModConfig {
     public static final double pullDownMaxVelocityDefault = 2.33;
     public static final double pullUpSpeedDefault = 2.16;
     public static final double pullDownSpeedDefault = 0.21;
-    public static final int elytraReplaceDurabilityDefault = 10;
     public static List<String> flyLocationsDefault = new ArrayList<>();
 
     // Gui values
@@ -268,6 +268,15 @@ public class ModConfig {
                                         newVal -> ModConfig.INSTANCE.emergencyLand = newVal)
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
+                        .option(Option.<Integer>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.flightprofile.elytraReplaceDurability"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.flightprofile.elytraReplaceDurability.desc")))
+                                .binding(
+                                        elytraReplaceDurabilityDefault,
+                                        () -> ModConfig.INSTANCE.elytraReplaceDurability,
+                                        newVal -> ModConfig.INSTANCE.elytraReplaceDurability = newVal)
+                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(3).max(430))
+                                .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Text.of("Elytra Auto equip/swap"))
                                 .description(OptionDescription.of(Text.of("Enable automatic elytra equip or chestplate swap when double jump (try to glide)")))
@@ -342,15 +351,6 @@ public class ModConfig {
                                         () -> ModConfig.INSTANCE.pullDownSpeed,
                                         newVal -> ModConfig.INSTANCE.pullDownSpeed = newVal)
                                 .controller(DoubleFieldControllerBuilder::create)
-                                .build())
-                        .option(Option.<Integer>createBuilder()
-                                .name(Text.translatable("config.elytraautopilot.advanced.elytraReplaceDurability"))
-                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.advanced.elytraReplaceDurability.desc")))
-                                .binding(
-                                        elytraReplaceDurabilityDefault,
-                                        () -> ModConfig.INSTANCE.elytraReplaceDurability,
-                                        newVal -> ModConfig.INSTANCE.elytraReplaceDurability = newVal)
-                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(3).max(430))
                                 .build())
                         .option(ListOption.<String>createBuilder()
                                 .name(Text.translatable("config.elytraautopilot.advanced.flyLocations"))

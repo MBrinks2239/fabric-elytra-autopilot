@@ -5,7 +5,8 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.elytraautopilot.config.ModConfig;
-import net.elytraautopilot.xaeromapintegration.XaeromapWaypointReader;
+// TODO: Re-add when Xaero minimap is updated
+//import net.elytraautopilot.xaeromapintegration.XaeromapWaypointReader;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -20,17 +21,17 @@ public class CommandSuggestionProvider implements SuggestionProvider<FabricClien
             String[] tokens = s.split(";");
             builder.suggest(tokens[0]);
         }
-
-        if(FabricLoader.getInstance().isModLoaded("xaerominimap")) {
-            var waypoints = XaeromapWaypointReader.GetXearomapWaypoints();
-
-            if(waypoints != null) {
-                for (String s : waypoints) {
-                    String[] tokens = s.split(";");
-                    builder.suggest('"'+tokens[0]+'"');
-                }
-            }
-        }
+// TODO: Re-add when Xaero minimap is updated
+//        if(FabricLoader.getInstance().isModLoaded("xaerominimap")) {
+//            var waypoints = XaeromapWaypointReader.GetXearomapWaypoints();
+//
+//            if(waypoints != null) {
+//                for (String s : waypoints) {
+//                    String[] tokens = s.split(";");
+//                    builder.suggest('"'+tokens[0]+'"');
+//                }
+//            }
+//        }
 
         return builder.buildFuture();
     }

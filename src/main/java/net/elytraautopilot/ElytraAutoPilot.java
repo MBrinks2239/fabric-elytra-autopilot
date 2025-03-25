@@ -3,6 +3,7 @@ package net.elytraautopilot;
 import com.terraformersmc.modmenu.ModMenu;
 import net.elytraautopilot.commands.ClientCommands;
 import net.elytraautopilot.config.ModConfig;
+import net.elytraautopilot.utils.ElytraManager;
 import net.elytraautopilot.utils.Hud;
 import net.elytraautopilot.utils.KeyBindings;
 import net.fabricmc.api.ClientModInitializer;
@@ -12,21 +13,12 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -96,18 +88,19 @@ public class ElytraAutoPilot implements ClientModInitializer {
             if (player != null) {
                 if (ModConfig.INSTANCE.elytraAutoSwap) {
                     int elytraSlot = getElytraIndex(player);
-                    if (elytraSlot == -1) {
+                    if (elytraSlot == -100) {
                         player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.noElytraInInventory").formatted(Formatting.RED), true);
                         return;
                     }
                     equipElytra(player);
                 } else {
-                    Item itemChest = player.getInventory().armor.get(2).getItem();
-                    if (itemChest != Items.ELYTRA) {
+                    ItemStack itemStack = ElytraManager.getChestplateSlot(player);
+
+                    if (itemStack.getItem() != Items.ELYTRA) {
                         player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.noElytraEquipped").formatted(Formatting.RED), true);
                         return;
                     }
-                    int elytraDamage = player.getInventory().armor.get(2).getMaxDamage() - player.getInventory().armor.get(2).getDamage();
+                    int elytraDamage = itemStack.getMaxDamage() - itemStack.getDamage();
                     if (elytraDamage == 1) {
                         player.sendMessage(Text.translatable("text." + MODID + ".takeoffFail.elytraBroken").formatted(Formatting.RED), true);
                         return;
@@ -115,8 +108,9 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 }
                 Item itemMain = player.getMainHandStack().getItem();
                 Item itemOff = player.getOffHandStack().getItem();
-                Item itemChest = player.getInventory().armor.get(2).getItem();
-                int elytraDamage = player.getInventory().armor.get(2).getMaxDamage() - player.getInventory().armor.get(2).getDamage();
+                var chestplateSlot = ElytraManager.getChestplateSlot(player);
+                Item itemChest = chestplateSlot.getItem();
+                int elytraDamage = chestplateSlot.getMaxDamage() - chestplateSlot.getDamage();
                 if (itemChest != Items.ELYTRA) {
                     player.sendMessage(Text.translatable("text.elytraautopilot.takeoffFail.noElytraEquipped").formatted(Formatting.RED), true);
                     return;
@@ -190,8 +184,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
         PlayerEntity player = minecraftClient.player;
         if (player == null) return;
 
-        //Fps adaptation (not perfect but works nicely most of the time)
-        float fps_delta = minecraftClient.getRenderTickCounter().getLastFrameDuration();
+        // Fps adaptation (not perfect but works nicely most of the time)
+        float fps_delta = minecraftClient.getRenderTickCounter().getDynamicDeltaTicks();
         float fps_result = 20/fps_delta;
         double speedMod = 60/fps_result; //Adapt to base 60 FPS
 
@@ -320,8 +314,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
 
         double altitude;
         if (autoFlight) {
-
-            if(ModConfig.INSTANCE.emergencyLand && getElytraDurability(player) < ModConfig.INSTANCE.elytraReplaceDurability) {
+            var durability = getElytraDurability(player);
+            if(ModConfig.INSTANCE.emergencyLand && durability < ModConfig.INSTANCE.elytraReplaceDurability) {
                 if (ModConfig.INSTANCE.elytraAutoSwap) {
                     if(canRestockElytra(player)) {
                         forceLand = !tryRestockElytra(player);
@@ -444,7 +438,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
     private static boolean tryRestockFirework(PlayerEntity player) {
         if(ModConfig.INSTANCE.fireworkHotswap) {
             ItemStack newFirework = null;
-            for (ItemStack itemStack : player.getInventory().main) {
+            for (ItemStack itemStack : player.getInventory().getMainStacks()) {
                 if (itemStack.getItem() == Items.FIREWORK_ROCKET ) {
                     newFirework = itemStack;
                     break;
@@ -456,14 +450,14 @@ public class ElytraAutoPilot implements ClientModInitializer {
                     handSlot = 45; //Offhand slot refill
                 }
                 else{
-                    handSlot = 36 + player.getInventory().selectedSlot; //Mainhand slot refill
+                    handSlot = 36 + player.getInventory().getSelectedSlot(); //Mainhand slot refill
                 }
 
                 assert minecraftClient.interactionManager != null;
                 minecraftClient.interactionManager.clickSlot(
                         player.playerScreenHandler.syncId,
                         handSlot,
-                        player.getInventory().main.indexOf(newFirework),
+                        player.getInventory().getMainStacks().indexOf(newFirework),
                         SlotActionType.SWAP,
                         player
                 );
@@ -481,7 +475,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
     }
 
     private static boolean canRestockElytra(ClientPlayerEntity player) {
-        return getElytraIndex(player) != -1;
+        var result = getElytraIndex(player);
+        return result != -1;
     }
 
     private void computeVelocity()

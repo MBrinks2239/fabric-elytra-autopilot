@@ -1,6 +1,6 @@
 //file:noinspection GroovyUnusedAssignment
 plugins {
-	id 'fabric-loom' version '1.9-SNAPSHOT'
+	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
@@ -48,7 +48,7 @@ dependencies {
 
 	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-	modApi "maven.modrinth:xaeros-minimap:${project.xaeros_minimap_version}"
+	//modApi "maven.modrinth:xaeros-minimap:${project.xaeros_minimap_version}"
 }
 
 

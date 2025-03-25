@@ -8,7 +8,8 @@ import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.exceptions.InvalidLocationException;
 import net.elytraautopilot.types.FlyToLocation;
 import net.elytraautopilot.utils.CommandSuggestionProvider;
-import net.elytraautopilot.xaeromapintegration.XaeromapWaypointReader;
+// TODO: Re-add when Xaero minimap is updated
+//import net.elytraautopilot.xaeromapintegration.XaeromapWaypointReader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -42,16 +43,16 @@ public class ClientCommands {
                                     if(result == 1) {
                                         return 1;
                                     }
-
-                                    if(isXaeroMinimapInstalled) {
-                                        String[] xaeroLocations = XaeromapWaypointReader.GetXearomapWaypoints();
-                                        if(xaeroLocations != null) {
-                                            int xaeroResult = TryFlyTo(xaeroLocations, locationName, minecraftClient, context);
-                                            if(xaeroResult == 1) {
-                                                return 1;
-                                            }
-                                        }
-                                    }
+// TODO: Re-add when Xaero minimap is updated
+//                                    if(isXaeroMinimapInstalled) {
+//                                        String[] xaeroLocations = XaeromapWaypointReader.GetXearomapWaypoints();
+//                                        if(xaeroLocations != null) {
+//                                            int xaeroResult = TryFlyTo(xaeroLocations, locationName, minecraftClient, context);
+//                                            if(xaeroResult == 1) {
+//                                                return 1;
+//                                            }
+//                                        }
+//                                    }
 
                                     minecraftClient.player.sendMessage(Text
                                             .translatable("text.elytraautopilot.flylocationFail.notFound", locationName)
@@ -107,15 +108,15 @@ public class ClientCommands {
                                     int successLocalTakeOff = TryTakeoff(ModConfig.INSTANCE.flyLocations.toArray(new String[0]), locationName);
                                     if (successLocalTakeOff == 1)
                                         return 1;
-
-                                    if(isXaeroMinimapInstalled) {
-                                        String[] xaeroLocations = XaeromapWaypointReader.GetXearomapWaypoints();
-                                        if (xaeroLocations != null) {
-                                            int successXaeroTakeOff = TryTakeoff(xaeroLocations, locationName);
-                                            if (successXaeroTakeOff == 1)
-                                                return 1;
-                                        }
-                                    }
+// TODO: Re-add when Xaero minimap is updated
+//                                    if(isXaeroMinimapInstalled) {
+//                                        String[] xaeroLocations = XaeromapWaypointReader.GetXearomapWaypoints();
+//                                        if (xaeroLocations != null) {
+//                                            int successXaeroTakeOff = TryTakeoff(xaeroLocations, locationName);
+//                                            if (successXaeroTakeOff == 1)
+//                                                return 1;
+//                                        }
+//                                    }
                                     minecraftClient.player.sendMessage(Text
                                             .translatable("text.elytraautopilot.flylocationFail.notFound", locationName)
                                             .formatted(Formatting.RED), true);

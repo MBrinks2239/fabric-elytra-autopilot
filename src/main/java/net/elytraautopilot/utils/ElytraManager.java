@@ -5,7 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.SpawnLocation;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -27,8 +27,8 @@ public class ElytraManager {
 
     public static boolean equipElytra(ClientPlayerEntity player) {
         int elytraIndex = getElytraIndex(player);
-        if (elytraIndex != -1) {
-            ItemStack stack = player.getInventory().armor.get(2);
+        if (elytraIndex != -100) {
+            ItemStack stack = player.getEquippedStack(EquipmentSlot.CHEST);
             lastUID = getItemUID(stack);
             swapChestplateSlot(elytraIndex, player);
             autoSwapIsActive = true;
@@ -40,15 +40,15 @@ public class ElytraManager {
         return false;
     }
 
-    private static ItemStack getChestplateSlot(ClientPlayerEntity player) {
-        return player.getInventory().getArmorStack(2);
+    public static ItemStack getChestplateSlot(ClientPlayerEntity player) {
+        return player.getEquippedStack(EquipmentSlot.CHEST);
     }
 
     public static boolean equipChestplate(ClientPlayerEntity player) {
         int chestplateIndex = getLastChestplateIndex(player);
-        if(chestplateIndex != -1) {
+        if(chestplateIndex != -100) {
             swapChestplateSlot(chestplateIndex, player);
-            lastUID = -1;
+            lastUID = -100;
             autoSwapIsActive = false;
             return true;
         }
@@ -66,13 +66,13 @@ public class ElytraManager {
     }
 
     private static int getItemUID(ItemStack stack) {
-        if (stack.isEmpty()) return -1;
+        if (stack.isEmpty()) return -100;
         return stack.getName().hashCode() + stack.getEnchantments().hashCode() + stack.getDamage();
     }
 
     private static int getLastChestplateIndex(ClientPlayerEntity player) {
         PlayerInventory inv = player.getInventory();
-        if (inv == null) return -1;
+        if (inv == null) return -100;
 
         for (int slot : slotArray()) {
             ItemStack stack = inv.getStack(slot);
@@ -80,22 +80,22 @@ public class ElytraManager {
                 return DataSlotToNetworkSlot(slot);
             }
         }
-        return -1;
+        return -100;
     }
 
     public static int getElytraIndex(PlayerEntity player) {
         PlayerInventory inv = player.getInventory();
-        if (inv == null) return -1;
+        if (inv == null) return -100;
 
         var world = player.getWorld();
 
-        int bestSlot = -1;
+        int bestSlot = -100;
         ItemStack bestItemStack = null;
         int bestPriority = Integer.MAX_VALUE;
 
         for (int slot : slotArray()) {
             ItemStack stack = inv.getStack(slot);
-            if (!stack.isOf(Items.ELYTRA) || stack.getDamage() >= stack.getMaxDamage() - ModConfig.INSTANCE.elytraReplaceDurability) {
+            if (!stack.isOf(Items.ELYTRA) || stack.getDamage() >= (stack.getMaxDamage() - ModConfig.INSTANCE.elytraReplaceDurability)) {
                 continue;
             }
 
@@ -119,6 +119,7 @@ public class ElytraManager {
                 bestPriority = priority;
             }
         }
+
         return DataSlotToNetworkSlot(bestSlot);
     }
 
@@ -151,7 +152,7 @@ public class ElytraManager {
             index = 5;
         else if(index == -106 || index == 40)
             index = 45;
-        else if(index <= 8)
+        else if(index <= 8 && index != -100)
             index += 36;
         else if(index >= 80 && index <= 83)
             index -= 79;

@@ -46,13 +46,12 @@
   "depends": {
     "fabricloader": ">=0.16.10",
     "fabric-api": "*",
-    "minecraft": "1.21.4",
+    "minecraft": "1.21.5",
     "java": ">=21",
     "yet_another_config_lib_v3": "*"
   },
   "suggests": {
-    "modmenu": "*",
-    "xaerominimap": "*"
+    "modmenu": "*"
   },
   "custom": {
     "modmenu": {
