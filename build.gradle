@@ -48,7 +48,7 @@ dependencies {
 
 	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-	//modApi "maven.modrinth:xaeros-minimap:${project.xaeros_minimap_version}"
+	modApi "maven.modrinth:xaeros-minimap:${project.xaeros_minimap_version}"
 }
 
 
