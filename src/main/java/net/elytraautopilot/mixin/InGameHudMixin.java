@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class InGameHudMixin {
 	@Inject(at = @At(value = "RETURN"), method = "render")
 	public void renderPost(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-		// TODO allow drawing on background of current screen
+
 		if (!ci.isCancelled()) {
 			MinecraftClient minecraftClient = MinecraftClient.getInstance();
 			if (minecraftClient.currentScreen == null && ElytraAutoPilot.calculateHud) {

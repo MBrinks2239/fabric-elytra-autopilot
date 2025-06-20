@@ -20,6 +20,7 @@ public class CommandSuggestionProvider implements SuggestionProvider<FabricClien
             String[] tokens = s.split(";");
             builder.suggest(tokens[0]);
         }
+
         if(FabricLoader.getInstance().isModLoaded("xaerominimap")) {
             var waypoints = XaeromapWaypointReader.GetXearomapWaypoints();
 

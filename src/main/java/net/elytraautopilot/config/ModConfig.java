@@ -33,13 +33,13 @@ public class ModConfig {
     public static final boolean showGuiDefault = true;
     public static final int guiScaleDefault = 100;
     public static final int minGuiScale = 0;
-    public static final int maxGuiScale = 300;
+    public static final int maxGuiScale = 1000;
     public static final int guiXDefault = 5;
     public static final int minGuiX = 0;
-    public static final int maxGuiX = 300;
+    public static final int maxGuiX = 1000;
     public static final int guiYDefault = 5;
     public static final int minGuiY = 0;
-    public static final int maxGuiY = 300;
+    public static final int maxGuiY = 1000;
 
     // Flight profile defaults
     public static final int maxHeightDefault = 360;

@@ -5,10 +5,12 @@ import net.elytraautopilot.commands.ClientCommands;
 import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.utils.ElytraManager;
 import net.elytraautopilot.utils.Hud;
+import net.elytraautopilot.utils.HudRenderer;
 import net.elytraautopilot.utils.KeyBindings;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -72,8 +74,16 @@ public class ElytraAutoPilot implements ClientModInitializer {
         minecraftClient = MinecraftClient.getInstance();
 
         KeyBindings.init();
-        HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> ElytraAutoPilot.this.onScreenTick());
+        HudElementRegistry.addLast(
+                Identifier.of(MODID, "hud"),
+                (context, tickCounter) -> {
+                    ElytraAutoPilot.this.onScreenTick();
+                    HudRenderer.drawHud(context, tickCounter);
+                }
+        );
+
         ClientTickEvents.END_CLIENT_TICK.register(e -> this.onClientTick());
+
 
         ClientCommands.register(minecraftClient);
     }
@@ -342,7 +352,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
             {
                 pullUp = false;
                 pullDown = true;
-                if (altitude > ModConfig.INSTANCE.maxHeight) { //TODO fix inconsistent height behavior
+                if (altitude > ModConfig.INSTANCE.maxHeight) {
                     velHigh = 0.3f;
                 }
                 else if (altitude > ModConfig.INSTANCE.maxHeight-10) {
