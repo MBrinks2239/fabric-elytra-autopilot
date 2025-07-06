@@ -41,6 +41,19 @@ public class ModConfig {
     public static final int minGuiY = 0;
     public static final int maxGuiY = 1000;
 
+    // Info lines
+    public static final boolean showEnabledDefault = true;
+    public static final boolean showAltitudeDefault = true;
+    public static final boolean showHeightDefault = true;
+    public static final boolean showHeightReqDefault = true;
+    public static final boolean showSpeedDefault = true;
+    public static final boolean showAvgSpeedDefault = true;
+    public static final boolean showHorizontalSpeedDefault = true;
+    public static final boolean showFlyToDefault = true;
+    public static final boolean showEtaDefault = true;
+    public static final boolean showAutoLandDefault = true;
+    public static final boolean showLandingStatusDefault = true;
+
     // Flight profile defaults
     public static final int maxHeightDefault = 360;
     public static final int minHeightDefault = 180;
@@ -76,6 +89,19 @@ public class ModConfig {
     public int guiScale = guiScaleDefault;
     public int guiX = guiXDefault;
     public int guiY = guiYDefault;
+
+    // Info lines
+    public boolean showEnabled = showEnabledDefault;
+    public boolean showAltitude = showAltitudeDefault;
+    public boolean showHeight = showHeightDefault;
+    public boolean showHeightReq = showHeightReqDefault;
+    public boolean showSpeed = showSpeedDefault;
+    public boolean showAvgSpeed = showAvgSpeedDefault;
+    public boolean showHorizontalSpeed = showHorizontalSpeedDefault;
+    public boolean showFlyTo = showFlyToDefault;
+    public boolean showEta = showEtaDefault;
+    public boolean showAutoLand = showAutoLandDefault;
+    public boolean showLandingStatus = showLandingStatusDefault;
 
     // Flight profile values
     public int maxHeight = maxHeightDefault;
@@ -150,6 +176,105 @@ public class ModConfig {
                                         IntegerFieldControllerBuilder.create(opt)
                                                 .min(minGuiY)
                                                 .max(maxGuiY))
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.enabled"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.enabled.desc")))
+                                .binding(
+                                        showEnabledDefault,
+                                        () -> ModConfig.INSTANCE.showEnabled,
+                                        newVal -> ModConfig.INSTANCE.showEnabled = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.altitude"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.altitude.desc")))
+                                .binding(
+                                        showAltitudeDefault,
+                                        () -> ModConfig.INSTANCE.showAltitude,
+                                        newVal -> ModConfig.INSTANCE.showAltitude = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.height"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.height.desc")))
+                                .binding(
+                                        showHeightDefault,
+                                        () -> ModConfig.INSTANCE.showHeight,
+                                        newVal -> ModConfig.INSTANCE.showHeight = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.heightreq"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.heightreq.desc")))
+                                .binding(
+                                        showHeightReqDefault,
+                                        () -> ModConfig.INSTANCE.showHeightReq,
+                                        newVal -> ModConfig.INSTANCE.showHeightReq = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.speed"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.speed.desc")))
+                                .binding(
+                                        showSpeedDefault,
+                                        () -> ModConfig.INSTANCE.showSpeed,
+                                        newVal -> ModConfig.INSTANCE.showSpeed = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.avgspeed"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.avgspeed.desc")))
+                                .binding(
+                                        showAvgSpeedDefault,
+                                        () -> ModConfig.INSTANCE.showAvgSpeed,
+                                        newVal -> ModConfig.INSTANCE.showAvgSpeed = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.horizontalspeed"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.horizontalspeed.desc")))
+                                .binding(
+                                        showHorizontalSpeedDefault,
+                                        () -> ModConfig.INSTANCE.showHorizontalSpeed,
+                                        newVal -> ModConfig.INSTANCE.showHorizontalSpeed = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.flyto"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.flyto.desc")))
+                                .binding(
+                                        showFlyToDefault,
+                                        () -> ModConfig.INSTANCE.showFlyTo,
+                                        newVal -> ModConfig.INSTANCE.showFlyTo = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.eta"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.eta.desc")))
+                                .binding(
+                                        showEtaDefault,
+                                        () -> ModConfig.INSTANCE.showEta,
+                                        newVal -> ModConfig.INSTANCE.showEta = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.autoland"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.autoland.desc")))
+                                .binding(
+                                        showAutoLandDefault,
+                                        () -> ModConfig.INSTANCE.showAutoLand,
+                                        newVal -> ModConfig.INSTANCE.showAutoLand = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Text.translatable("config.elytraautopilot.gui.landingstatus"))
+                                .description(OptionDescription.of(Text.translatable("config.elytraautopilot.gui.landingstatus.desc")))
+                                .binding(
+                                        showLandingStatusDefault,
+                                        () -> ModConfig.INSTANCE.showLandingStatus,
+                                        newVal -> ModConfig.INSTANCE.showLandingStatus = newVal)
+                                .controller(BooleanControllerBuilder::create)
                                 .build())
                         .build())
                 .category(ConfigCategory.createBuilder()
