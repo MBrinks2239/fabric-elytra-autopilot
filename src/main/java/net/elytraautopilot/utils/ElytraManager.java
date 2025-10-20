@@ -87,7 +87,7 @@ public class ElytraManager {
         PlayerInventory inv = player.getInventory();
         if (inv == null) return -100;
 
-        var world = player.getWorld();
+        var world = player.getEntityWorld();
 
         int bestSlot = -100;
         ItemStack bestItemStack = null;

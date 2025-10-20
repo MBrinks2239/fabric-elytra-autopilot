@@ -33,7 +33,7 @@ public class Hud {
             return;
         }
 
-        double altitude = player.getPos().y;
+        double altitude = player.getEntityPos().y;
         int gticks = Math.max(1, ModConfig.INSTANCE.groundCheckTicks);
 
         if (_tick >= gticks) {
@@ -46,9 +46,9 @@ public class Hud {
                 velocityList.set(_index, currentVelocity);
                 velocityListHorizontal.set(_index, currentVelocityHorizontal);
             }
-            World world = player.getWorld();
+            World world = player.getEntityWorld();
             int l = world.getBottomY();
-            Vec3d clientPos = player.getPos();
+            Vec3d clientPos = player.getEntityPos();
             for (double i = clientPos.getY(); i > l; i--) {
                 BlockPos blockPos = BlockPos.ofFloored(clientPos.getX(), i, clientPos.getZ());
                 if (world.getBlockState(blockPos).isSolidBlock(world, blockPos)) {

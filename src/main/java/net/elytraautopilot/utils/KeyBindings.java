@@ -5,41 +5,46 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier; // <-- make sure this import exists
 import org.lwjgl.glfw.GLFW;
 
 public class KeyBindings {
     public static KeyBinding configBinding;
     public static KeyBinding landBinding;
     public static KeyBinding takeoffBinding;
+
+    private static KeyBinding.Category CATEGORY;
+
     public static void init() {
-        String key;
         String modid = ElytraAutoPilot.getModId();
-        if (FabricLoader.getInstance().isModLoaded("cloth-config")) {
-            key = "key." + modid + ".toggle";
+
+        if (CATEGORY == null) {
+            CATEGORY = KeyBinding.Category.create(Identifier.of(modid, "flight"));
         }
-        else {
-            key = "key." + modid + ".toggle_no_cloth";
-        }
+
+        final String key = FabricLoader.getInstance().isModLoaded("cloth-config")
+                ? "key." + modid + ".toggle"
+                : "key." + modid + ".toggle_no_cloth";
 
         landBinding = new KeyBinding(
                 "key." + modid + ".land",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT_SHIFT,
-                "config." + modid + ".title"
+                CATEGORY
         );
 
         takeoffBinding = new KeyBinding(
                 "key." + modid + ".takeoff",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT_ALT,
-                "config." + modid + ".title"
+                CATEGORY
         );
 
         configBinding = new KeyBinding(
                 key,
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
-                "config." + modid + ".title"
+                CATEGORY
         );
 
         KeyBindingHelper.registerKeyBinding(configBinding);

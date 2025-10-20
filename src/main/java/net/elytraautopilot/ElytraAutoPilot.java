@@ -133,8 +133,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
                     return;
                 }
 
-                World world = player.getWorld();
-                Vec3d clientPos = player.getPos();
+                World world = player.getEntityWorld();
+                Vec3d clientPos = player.getEntityPos();
                 int l = world.getTopYInclusive();
                 int n = 2;
                 double c = clientPos.getY();
@@ -243,7 +243,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                     }
                 }
                 else {
-                    Vec3d playerPosition = player.getPos();
+                    Vec3d playerPosition = player.getEntityPos();
                     double f = (double) argXpos - playerPosition.x;
                     double d = (double) argZpos - playerPosition.z;
                     float targetYaw = MathHelper.wrapDegrees((float) (MathHelper.atan2(d, f) * 57.2957763671875D) - 90.0F);
@@ -338,7 +338,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
             }
 
 
-            altitude = player.getPos().y;
+            altitude = player.getEntityPos().y;
 
             if (player.isTouchingWater() || player.isInLava()) {
                 isflytoActive = false;
@@ -493,7 +493,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
         Vec3d newPosition;
         PlayerEntity player = minecraftClient.player;
         if (player != null && !(minecraftClient.isPaused() && minecraftClient.isInSingleplayer())) {
-            newPosition = player.getPos();
+            newPosition = player.getEntityPos();
             if (previousPosition == null)
                 previousPosition = newPosition;
 
