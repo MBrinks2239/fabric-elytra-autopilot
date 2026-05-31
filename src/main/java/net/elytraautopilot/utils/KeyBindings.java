@@ -1,54 +1,54 @@
 package net.elytraautopilot.utils;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.elytraautopilot.ElytraAutoPilot;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier; // <-- make sure this import exists
+import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyBindings {
-    public static KeyBinding configBinding;
-    public static KeyBinding landBinding;
-    public static KeyBinding takeoffBinding;
+    public static KeyMapping configBinding;
+    public static KeyMapping landBinding;
+    public static KeyMapping takeoffBinding;
 
-    private static KeyBinding.Category CATEGORY;
+    private static KeyMapping.Category CATEGORY;
 
     public static void init() {
         String modid = ElytraAutoPilot.getModId();
 
         if (CATEGORY == null) {
-            CATEGORY = KeyBinding.Category.create(Identifier.of(modid, "flight"));
+            CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(modid, "flight"));
         }
 
         final String key = FabricLoader.getInstance().isModLoaded("cloth-config")
                 ? "key." + modid + ".toggle"
                 : "key." + modid + ".toggle_no_cloth";
 
-        landBinding = new KeyBinding(
+        landBinding = new KeyMapping(
                 "key." + modid + ".land",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT_SHIFT,
                 CATEGORY
         );
 
-        takeoffBinding = new KeyBinding(
+        takeoffBinding = new KeyMapping(
                 "key." + modid + ".takeoff",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT_ALT,
                 CATEGORY
         );
 
-        configBinding = new KeyBinding(
+        configBinding = new KeyMapping(
                 key,
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
                 CATEGORY
         );
 
-        KeyBindingHelper.registerKeyBinding(configBinding);
-        KeyBindingHelper.registerKeyBinding(landBinding);
-        KeyBindingHelper.registerKeyBinding(takeoffBinding);
+        KeyMappingHelper.registerKeyMapping(configBinding);
+        KeyMappingHelper.registerKeyMapping(landBinding);
+        KeyMappingHelper.registerKeyMapping(takeoffBinding);
     }
 }

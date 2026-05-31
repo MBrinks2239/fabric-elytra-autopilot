@@ -1,50 +1,50 @@
 package net.elytraautopilot.utils;
 
 import net.elytraautopilot.config.ModConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
 
 public class ElytraManager {
     private static final int CHESTPLATE_INDEX = 6;
     private static int lastUID = -1;
     public static boolean autoSwapIsActive = false;
 
-    public static int getElytraDurability(ClientPlayerEntity player) {
+    public static int getElytraDurability(LocalPlayer player) {
         var elytra = getChestplateSlot(player);
-        return elytra.getMaxDamage() - elytra.getDamage();
+        return elytra.getMaxDamage() - elytra.getDamageValue();
     }
 
-    public static boolean equipElytra(ClientPlayerEntity player) {
+    public static boolean equipElytra(LocalPlayer player) {
         int elytraIndex = getElytraIndex(player);
         if (elytraIndex != -100) {
-            ItemStack stack = player.getEquippedStack(EquipmentSlot.CHEST);
+            ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
             lastUID = getItemUID(stack);
             swapChestplateSlot(elytraIndex, player);
             autoSwapIsActive = true;
             // Send packet so server knows player is flying
-            player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+            player.connection.send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
             return true;
         }
 
         return false;
     }
 
-    public static ItemStack getChestplateSlot(ClientPlayerEntity player) {
-        return player.getEquippedStack(EquipmentSlot.CHEST);
+    public static ItemStack getChestplateSlot(LocalPlayer player) {
+        return player.getItemBySlot(EquipmentSlot.CHEST);
     }
 
-    public static boolean equipChestplate(ClientPlayerEntity player) {
+    public static boolean equipChestplate(LocalPlayer player) {
         int chestplateIndex = getLastChestplateIndex(player);
         if(chestplateIndex != -100) {
             swapChestplateSlot(chestplateIndex, player);
@@ -56,26 +56,26 @@ public class ElytraManager {
         return false;
     }
 
-    private static void swapChestplateSlot(int slot, ClientPlayerEntity player) {
-        var interactionManager = MinecraftClient.getInstance().interactionManager;
+    private static void swapChestplateSlot(int slot, LocalPlayer player) {
+        var interactionManager = Minecraft.getInstance().gameMode;
         assert interactionManager != null;
-        interactionManager.clickSlot(0, slot, 0, SlotActionType.PICKUP, player);
-        interactionManager.clickSlot(0, CHESTPLATE_INDEX, 0, SlotActionType.PICKUP, player);
-        interactionManager.clickSlot(0, slot, 0, SlotActionType.PICKUP, player);
-        player.networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+        interactionManager.handleContainerInput(0, slot, 0, ContainerInput.PICKUP, player);
+        interactionManager.handleContainerInput(0, CHESTPLATE_INDEX, 0, ContainerInput.PICKUP, player);
+        interactionManager.handleContainerInput(0, slot, 0, ContainerInput.PICKUP, player);
+        player.connection.send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
     }
 
     private static int getItemUID(ItemStack stack) {
         if (stack.isEmpty()) return -100;
-        return stack.getName().hashCode() + stack.getEnchantments().hashCode() + stack.getDamage();
+        return stack.getHoverName().hashCode() + stack.getEnchantments().hashCode() + stack.getDamageValue();
     }
 
-    private static int getLastChestplateIndex(ClientPlayerEntity player) {
-        PlayerInventory inv = player.getInventory();
+    private static int getLastChestplateIndex(LocalPlayer player) {
+        Inventory inv = player.getInventory();
         if (inv == null) return -100;
 
         for (int slot : slotArray()) {
-            ItemStack stack = inv.getStack(slot);
+            ItemStack stack = inv.getItem(slot);
             if (getItemUID(stack) == lastUID) {
                 return DataSlotToNetworkSlot(slot);
             }
@@ -83,19 +83,19 @@ public class ElytraManager {
         return -100;
     }
 
-    public static int getElytraIndex(PlayerEntity player) {
-        PlayerInventory inv = player.getInventory();
+    public static int getElytraIndex(Player player) {
+        Inventory inv = player.getInventory();
         if (inv == null) return -100;
 
-        var world = player.getEntityWorld();
+        var world = player.level();
 
         int bestSlot = -100;
         ItemStack bestItemStack = null;
         int bestPriority = Integer.MAX_VALUE;
 
         for (int slot : slotArray()) {
-            ItemStack stack = inv.getStack(slot);
-            if (!stack.isOf(Items.ELYTRA) || stack.getDamage() >= (stack.getMaxDamage() - ModConfig.INSTANCE.elytraReplaceDurability)) {
+            ItemStack stack = inv.getItem(slot);
+            if (!stack.is(Items.ELYTRA) || stack.getDamageValue() >= (stack.getMaxDamage() - ModConfig.INSTANCE.elytraReplaceDurability)) {
                 continue;
             }
 
@@ -113,7 +113,7 @@ public class ElytraManager {
                 priority = 4;
             }
 
-            if (priority < bestPriority || (priority == bestPriority && stack.getDamage() > bestItemStack.getDamage())) {
+            if (priority < bestPriority || (priority == bestPriority && stack.getDamageValue() > bestItemStack.getDamageValue())) {
                 bestSlot = slot;
                 bestItemStack = stack;
                 bestPriority = priority;
@@ -123,22 +123,22 @@ public class ElytraManager {
         return DataSlotToNetworkSlot(bestSlot);
     }
 
-    private static boolean elytraHasMending(ItemStack elytra, World world) {
-        var registry = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT);
-        if(registry.isEmpty() || registry.get().getEntry(Enchantments.MENDING.getValue()).isEmpty())
+    private static boolean elytraHasMending(ItemStack elytra, Level world) {
+        var registry = world.registryAccess().lookup(Registries.ENCHANTMENT);
+        if(registry.isEmpty() || registry.get().get(Enchantments.MENDING).isEmpty())
             return false;
 
-        int res = EnchantmentHelper.getLevel(registry.get().getEntry(Enchantments.MENDING.getValue()).get(), elytra);
+        int res = EnchantmentHelper.getItemEnchantmentLevel(registry.get().get(Enchantments.MENDING).get(), elytra);
 
         return res > 0;
     }
 
-    private static int elytraGetUnbreakingLevel(ItemStack elytra, World world) {
-        var registry = world.getRegistryManager().getOptional(RegistryKeys.ENCHANTMENT);
-        if(registry.isEmpty() || registry.get().getEntry(Enchantments.UNBREAKING.getValue()).isEmpty())
+    private static int elytraGetUnbreakingLevel(ItemStack elytra, Level world) {
+        var registry = world.registryAccess().lookup(Registries.ENCHANTMENT);
+        if(registry.isEmpty() || registry.get().get(Enchantments.UNBREAKING).isEmpty())
             return 0;
 
-        return EnchantmentHelper.getLevel(registry.get().getEntry(Enchantments.UNBREAKING.getValue()).get(), elytra);
+        return EnchantmentHelper.getItemEnchantmentLevel(registry.get().get(Enchantments.UNBREAKING).get(), elytra);
     }
 
     public static int DataSlotToNetworkSlot(int index) {

@@ -9,27 +9,28 @@ import net.elytraautopilot.exceptions.InvalidLocationException;
 import net.elytraautopilot.types.FlyToLocation;
 import net.elytraautopilot.utils.CommandSuggestionProvider;
 import net.elytraautopilot.xaeromapintegration.XaeromapWaypointReader;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
 
 import static java.lang.Integer.parseInt;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
 
 public class ClientCommands {
     public static boolean bufferSave = false;
     private static final boolean isXaeroMinimapInstalled = FabricLoader.getInstance().isModLoaded("xaerominimap");
 
-    public static void register(MinecraftClient minecraftClient) {
+    public static void register(Minecraft minecraftClient) {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                ClientCommandManager.literal("flyto")
-                        .then(ClientCommandManager.argument("Name", StringArgumentType.string())
+                literal("flyto")
+                        .then(argument("Name", StringArgumentType.string())
                                 .suggests(new CommandSuggestionProvider())
                                 .executes(context -> { // With name
                                     if (minecraftClient.player == null)
@@ -53,18 +54,17 @@ public class ClientCommands {
                                         }
                                     }
 
-                                    minecraftClient.player.sendMessage(Text
+                                    minecraftClient.player.sendOverlayMessage(Component
                                             .translatable("text.elytraautopilot.flylocationFail.notFound", locationName)
-                                            .formatted(Formatting.RED), true);
+                                            .withStyle(ChatFormatting.RED));
                                     return 0;
                                 }))
-                        .then(ClientCommandManager.argument("X", IntegerArgumentType.integer(-2000000000, 2000000000))
-                                .then(ClientCommandManager
-                                        .argument("Z", IntegerArgumentType.integer(-2000000000, 2000000000))
+                        .then(argument("X", IntegerArgumentType.integer(-2000000000, 2000000000))
+                                .then(argument("Z", IntegerArgumentType.integer(-2000000000, 2000000000))
                                         .executes(context -> {
                                             if (minecraftClient.player == null)
                                                 return 0;
-                                            if (minecraftClient.player.isGliding()) { // If the player is flying
+                                            if (minecraftClient.player.isFallFlying()) { // If the player is flying
                                                 if (ElytraAutoPilot.groundheight > ModConfig.INSTANCE.minHeight) { // If
                                                                                                                    // above
                                                                                                                    // required
@@ -76,26 +76,26 @@ public class ClientCommands {
                                                             "Z");
                                                     ElytraAutoPilot.isflytoActive = true;
                                                     ElytraAutoPilot.pitchMod = 3f;
-                                                    context.getSource().sendFeedback(Text
+                                                    context.getSource().sendFeedback(Component
                                                             .translatable("text.elytraautopilot.flyto",
                                                                     ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
-                                                            .formatted(Formatting.GREEN));
+                                                            .withStyle(ChatFormatting.GREEN));
                                                 } else {
-                                                    minecraftClient.player.sendMessage(Text
+                                                    minecraftClient.player.sendOverlayMessage(Component
                                                             .translatable("text.elytraautopilot.autoFlightFail.tooLow")
-                                                            .formatted(Formatting.RED), true);
+                                                            .withStyle(ChatFormatting.RED));
                                                 }
                                             } else {
-                                                minecraftClient.player.sendMessage(Text
+                                                minecraftClient.player.sendOverlayMessage(Component
                                                         .translatable("text.elytraautopilot.flytoFail.flyingRequired")
-                                                        .formatted(Formatting.RED), true);
+                                                        .withStyle(ChatFormatting.RED));
                                             }
                                             return 1;
                                         })))));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                ClientCommandManager.literal("takeoff")
-                        .then(ClientCommandManager.argument("Name", StringArgumentType.string())
+                literal("takeoff")
+                        .then(argument("Name", StringArgumentType.string())
                                 .suggests(new CommandSuggestionProvider())
                                 .executes(context -> { // With name
                                     if (minecraftClient.player == null)
@@ -116,14 +116,13 @@ public class ClientCommands {
                                                 return 1;
                                         }
                                     }
-                                    minecraftClient.player.sendMessage(Text
+                                    minecraftClient.player.sendOverlayMessage(Component
                                             .translatable("text.elytraautopilot.flylocationFail.notFound", locationName)
-                                            .formatted(Formatting.RED), true);
+                                            .withStyle(ChatFormatting.RED));
                                     return 0;
                                 }))
-                        .then(ClientCommandManager.argument("X", IntegerArgumentType.integer(-2000000000, 2000000000))
-                                .then(ClientCommandManager
-                                        .argument("Z", IntegerArgumentType.integer(-2000000000, 2000000000))
+                        .then(argument("X", IntegerArgumentType.integer(-2000000000, 2000000000))
+                                .then(argument("Z", IntegerArgumentType.integer(-2000000000, 2000000000))
                                         .executes(context -> { // With coordinates
                                             ElytraAutoPilot.argXpos = IntegerArgumentType.getInteger(context, "X");
                                             ElytraAutoPilot.argZpos = IntegerArgumentType.getInteger(context, "Z");
@@ -137,9 +136,9 @@ public class ClientCommands {
                         })));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                ClientCommandManager.literal("flylocation")
-                        .then(ClientCommandManager.literal("remove")
-                                .then(ClientCommandManager.argument("Name", StringArgumentType.string())
+                literal("flylocation")
+                        .then(literal("remove")
+                                .then(argument("Name", StringArgumentType.string())
                                         .suggests(new CommandSuggestionProvider())
                                         .executes(context -> {
                                             if (minecraftClient.player == null)
@@ -153,10 +152,10 @@ public class ClientCommands {
                                                     FlyToLocation location = FlyToLocation.ConvertStringToLocation(s);
                                                     if (location.Name.equals(locationName)) {
                                                         ModConfig.INSTANCE.flyLocations.remove(index);
-                                                        minecraftClient.player.sendMessage(Text
+                                                        minecraftClient.player.sendOverlayMessage(Component
                                                                 .translatable("text.elytraautopilot.flylocation.removed",
                                                                         locationName)
-                                                                .formatted(Formatting.GREEN), true);
+                                                                .withStyle(ChatFormatting.GREEN));
                                                         return 1;
                                                     }
                                                 } catch (InvalidLocationException e) {
@@ -164,18 +163,15 @@ public class ClientCommands {
                                                     break;
                                                 }
                                             }
-                                            minecraftClient.player.sendMessage(
-                                                    Text.translatable("text.elytraautopilot.flylocationFail.notFound",
-                                                            locationName).formatted(Formatting.RED),
-                                                    true);
+                                            minecraftClient.player.sendOverlayMessage(
+                                                    Component.translatable("text.elytraautopilot.flylocationFail.notFound",
+                                                            locationName).withStyle(ChatFormatting.RED));
                                             return 0;
                                         })))
-                        .then(ClientCommandManager.literal("set")
-                                .then(ClientCommandManager.argument("Name", StringArgumentType.string())
-                                        .then(ClientCommandManager
-                                                .argument("X", IntegerArgumentType.integer(-2000000000, 2000000000))
-                                                .then(ClientCommandManager
-                                                        .argument("Z",
+                        .then(literal("set")
+                                .then(argument("Name", StringArgumentType.string())
+                                        .then(argument("X", IntegerArgumentType.integer(-2000000000, 2000000000))
+                                                .then(argument("Z",
                                                                 IntegerArgumentType.integer(-2000000000, 2000000000))
                                                         .executes(context -> {
                                                             if (minecraftClient.player == null)
@@ -197,10 +193,10 @@ public class ClientCommands {
                                                                 try {
                                                                     FlyToLocation location = FlyToLocation.ConvertStringToLocation(s);
                                                                     if (location.Name.equals(locationName)) {
-                                                                        minecraftClient.player.sendMessage(Text
+                                                                        minecraftClient.player.sendOverlayMessage(Component
                                                                                 .translatable(
                                                                                         "text.elytraautopilot.flylocationFail.nameExists")
-                                                                                .formatted(Formatting.RED), true);
+                                                                                .withStyle(ChatFormatting.RED));
                                                                         return 0;
                                                                     }
                                                                 } catch (InvalidLocationException ignored) {
@@ -209,29 +205,28 @@ public class ClientCommands {
                                                                 }
                                                             }
                                                             ModConfig.INSTANCE.flyLocations.add(newLocation.ConvertLocationToString());
-                                                            minecraftClient.player.sendMessage(Text
+                                                            minecraftClient.player.sendOverlayMessage(Component
                                                                     .translatable(
                                                                             "text.elytraautopilot.flylocation.saved",
                                                                             locationName, locationX, locationZ)
-                                                                    .formatted(Formatting.GREEN), true);
+                                                                    .withStyle(ChatFormatting.GREEN));
                                                             bufferSave = true;
                                                             return 1;
                                                         })))))));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
-                ClientCommandManager.literal("land")
+                literal("land")
                         .executes(context -> {
                             if (ElytraAutoPilot.autoFlight) {
-                                ClientPlayerEntity player = minecraftClient.player;
+                                LocalPlayer player = minecraftClient.player;
                                 if (player == null)
                                     return 0;
-                                player.sendMessage(
-                                        Text.translatable("text.elytraautopilot.landing").formatted(Formatting.BLUE),
-                                        true);
+                                player.sendOverlayMessage(
+                                        Component.translatable("text.elytraautopilot.landing").withStyle(ChatFormatting.BLUE));
                                 SoundEvent soundEvent = SoundEvent
-                                        .of(Identifier.of(ModConfig.INSTANCE.playSoundOnLanding));
+                                        .createVariableRangeEvent(Identifier.parse(ModConfig.INSTANCE.playSoundOnLanding));
                                 player.playSound(soundEvent, 1.3f, 1f);
-                                minecraftClient.options.useKey.setPressed(false);
+                                minecraftClient.options.keyUse.setDown(false);
                                 ElytraAutoPilot.forceLand = true;
                                 return 1;
                             }
@@ -259,7 +254,7 @@ public class ClientCommands {
         return 0;
     }
 
-    private static int TryFlyTo(String[] locations, String locationName, MinecraftClient minecraftClient, CommandContext<FabricClientCommandSource> context) {
+    private static int TryFlyTo(String[] locations, String locationName, Minecraft minecraftClient, CommandContext<FabricClientCommandSource> context) {
         for (String s : locations) {
             try {
                 FlyToLocation location = FlyToLocation.ConvertStringToLocation(s);
@@ -268,17 +263,17 @@ public class ClientCommands {
                     continue;
 
                 assert minecraftClient.player != null;
-                if (!minecraftClient.player.isGliding()) {
-                    minecraftClient.player.sendMessage(Text
+                if (!minecraftClient.player.isFallFlying()) {
+                    minecraftClient.player.sendOverlayMessage(Component
                             .translatable("text.elytraautopilot.flytoFail.flyingRequired")
-                            .formatted(Formatting.RED), true);
+                            .withStyle(ChatFormatting.RED));
                     return 1;
                 }
 
                 if (ElytraAutoPilot.groundheight <= ModConfig.INSTANCE.minHeight) {
-                    minecraftClient.player.sendMessage(Text
+                    minecraftClient.player.sendOverlayMessage(Component
                             .translatable("text.elytraautopilot.autoFlightFail.tooLow")
-                            .formatted(Formatting.RED), true);
+                            .withStyle(ChatFormatting.RED));
                     return 1;
                 }
 
@@ -288,10 +283,10 @@ public class ClientCommands {
                 ElytraAutoPilot.isflytoActive = true;
                 ElytraAutoPilot.pitchMod = 3f;
 
-                context.getSource().sendFeedback(Text
+                context.getSource().sendFeedback(Component
                         .translatable("text.elytraautopilot.flyto",
                                 ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
-                        .formatted(Formatting.GREEN));
+                        .withStyle(ChatFormatting.GREEN));
 
                 return 1;
             } catch (InvalidLocationException e) {
