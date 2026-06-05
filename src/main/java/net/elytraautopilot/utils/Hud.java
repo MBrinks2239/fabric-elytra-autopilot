@@ -68,6 +68,8 @@ public class Hud {
                     cycleInitialized = true;
                     if (displayCycleAvgHorizontalVelocity != 0) {
                         cycleETA = distance / (displayCycleAvgHorizontalVelocity * 20);
+                    } else {
+                        cycleETA = 0.0;
                     }
                     cycleVelocitySamples.clear();
                     cycleHorizontalVelocitySamples.clear();
