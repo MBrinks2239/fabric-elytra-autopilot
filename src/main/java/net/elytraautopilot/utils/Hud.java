@@ -97,6 +97,11 @@ public class Hud {
             }
             _tick = 0;
 
+            // Update dead-reckoning ETA at the sampling cadence
+            if (ModConfig.INSTANCE.smoothEta && cycleInitialized && cycleETA > 0 && isflytoActive && !forceLand) {
+                cycleETA = Math.max(0, cycleETA - gticks / 20.0);
+            }
+
             // Compute averages — use cycle-based average when enabled and initialized
             double avgVelocity = 0, avgHorizontalVelocity = 0;
             if (ModConfig.INSTANCE.useCycleAvgSpeed && cycleInitialized) {
@@ -188,8 +193,6 @@ public class Hud {
                 if (distance != 0 && ModConfig.INSTANCE.showEta && avgHorizontalVelocity != 0) {
                     long displayETA;
                     if (ModConfig.INSTANCE.smoothEta && cycleInitialized && cycleETA > 0) {
-                        // Dead reckoning: count down linearly, independent of speed fluctuations
-                        cycleETA = Math.max(0, cycleETA - gticks / 20.0);
                         displayETA = Math.round(cycleETA);
                     } else {
                         displayETA = Math.round(distance / (avgHorizontalVelocity * 20));
