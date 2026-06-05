@@ -20,6 +20,15 @@ public class Hud {
     private static int _index = -1;
     public static Component[] hudString;
 
+    // Cycle-based averaging fields
+    private static boolean previousIsDescending = false;
+    private static List<Double> cycleVelocitySamples = new ArrayList<>();
+    private static List<Double> cycleHorizontalVelocitySamples = new ArrayList<>();
+    private static double displayCycleAvgVelocity = 0.0;
+    private static double displayCycleAvgHorizontalVelocity = 0.0;
+    private static double cycleETA = 0.0;
+    private static boolean cycleInitialized = false;
+
     public static void tick() {
         _tick++;
     }
@@ -44,6 +53,28 @@ public class Hud {
                 velocityList.set(_index, currentVelocity);
                 velocityListHorizontal.set(_index, currentVelocityHorizontal);
             }
+
+            // --- Cycle-based averaging ---
+            if (autoFlight && !isLanding && !forceLand) {
+                cycleVelocitySamples.add(currentVelocity);
+                cycleHorizontalVelocitySamples.add(currentVelocityHorizontal);
+
+                if (previousIsDescending && !isDescending && !cycleVelocitySamples.isEmpty()) {
+                    // Dive→Climb transition: one complete cycle finished
+                    displayCycleAvgVelocity = cycleVelocitySamples.stream()
+                            .mapToDouble(d -> d).average().orElse(0.0);
+                    displayCycleAvgHorizontalVelocity = cycleHorizontalVelocitySamples.stream()
+                            .mapToDouble(d -> d).average().orElse(0.0);
+                    cycleInitialized = true;
+                    if (displayCycleAvgHorizontalVelocity != 0) {
+                        cycleETA = distance / (displayCycleAvgHorizontalVelocity * 20);
+                    }
+                    cycleVelocitySamples.clear();
+                    cycleHorizontalVelocitySamples.clear();
+                }
+                previousIsDescending = isDescending;
+            }
+
             Level world = player.level();
             int l = world.getMinY();
             Vec3 clientPos = player.position();
@@ -58,9 +89,12 @@ public class Hud {
             }
             _tick = 0;
 
-            // Compute averages if we have enough samples
+            // Compute averages — use cycle-based average when enabled and initialized
             double avgVelocity = 0, avgHorizontalVelocity = 0;
-            if (velocityList.size() >= 10) {
+            if (ModConfig.INSTANCE.useCycleAvgSpeed && cycleInitialized) {
+                avgVelocity = displayCycleAvgVelocity;
+                avgHorizontalVelocity = displayCycleAvgHorizontalVelocity;
+            } else if (velocityList.size() >= 10) {
                 avgVelocity = velocityList.stream().mapToDouble(d -> d).average().orElse(0.0);
                 avgHorizontalVelocity = velocityListHorizontal.stream().mapToDouble(d -> d).average().orElse(0.0);
             }
@@ -143,10 +177,18 @@ public class Hud {
                                     .withStyle(ChatFormatting.LIGHT_PURPLE)
                     );
                 }
-                if (distance != 0 && ModConfig.INSTANCE.showEta) {
+                if (distance != 0 && ModConfig.INSTANCE.showEta && avgHorizontalVelocity != 0) {
+                    long displayETA;
+                    if (ModConfig.INSTANCE.smoothEta && cycleInitialized && cycleETA > 0) {
+                        // Dead reckoning: count down linearly, independent of speed fluctuations
+                        cycleETA = Math.max(0, cycleETA - gticks / 20.0);
+                        displayETA = Math.round(cycleETA);
+                    } else {
+                        displayETA = Math.round(distance / (avgHorizontalVelocity * 20));
+                    }
                     lines.add(
                             Component.translatable("text.elytraautopilot.hud.eta",
-                                    String.valueOf(Math.round(distance / (avgHorizontalVelocity * 20)))
+                                    String.valueOf(displayETA)
                             ).withStyle(ChatFormatting.LIGHT_PURPLE)
                     );
                 }
@@ -187,5 +229,12 @@ public class Hud {
     public static void clearHud() {
         velocityList.clear();
         velocityListHorizontal.clear();
+        cycleVelocitySamples.clear();
+        cycleHorizontalVelocitySamples.clear();
+        displayCycleAvgVelocity = 0.0;
+        displayCycleAvgHorizontalVelocity = 0.0;
+        cycleETA = 0.0;
+        cycleInitialized = false;
+        previousIsDescending = false;
     }
 }
