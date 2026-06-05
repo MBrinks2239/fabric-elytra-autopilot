@@ -75,6 +75,12 @@ public class Hud {
                     cycleHorizontalVelocitySamples.clear();
                 }
                 previousIsDescending = isDescending;
+            } else {
+                // Abort partial cycle when leaving normal cruising state
+                cycleVelocitySamples.clear();
+                cycleHorizontalVelocitySamples.clear();
+                previousIsDescending = false;
+                cycleETA = 0.0;
             }
 
             Level world = player.level();
