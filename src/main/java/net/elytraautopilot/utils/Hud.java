@@ -22,8 +22,10 @@ public class Hud {
 
     // Cycle-based averaging fields
     private static boolean previousIsDescending = false;
-    private static List<Double> cycleVelocitySamples = new ArrayList<>();
-    private static List<Double> cycleHorizontalVelocitySamples = new ArrayList<>();
+    private static double cycleVelocitySum = 0.0;
+    private static int cycleVelocityCount = 0;
+    private static double cycleHorizontalVelocitySum = 0.0;
+    private static int cycleHorizontalVelocityCount = 0;
     private static double displayCycleAvgVelocity = 0.0;
     private static double displayCycleAvgHorizontalVelocity = 0.0;
     private static double cycleETA = 0.0;
@@ -56,29 +58,33 @@ public class Hud {
 
             // --- Cycle-based averaging ---
             if (autoFlight && !isLanding && !forceLand) {
-                cycleVelocitySamples.add(currentVelocity);
-                cycleHorizontalVelocitySamples.add(currentVelocityHorizontal);
+                cycleVelocitySum += currentVelocity;
+                cycleVelocityCount++;
+                cycleHorizontalVelocitySum += currentVelocityHorizontal;
+                cycleHorizontalVelocityCount++;
 
-                if (previousIsDescending && !isDescending && !cycleVelocitySamples.isEmpty()) {
+                if (previousIsDescending && !isDescending && cycleVelocityCount > 0) {
                     // Dive→Climb transition: one complete cycle finished
-                    displayCycleAvgVelocity = cycleVelocitySamples.stream()
-                            .mapToDouble(d -> d).average().orElse(0.0);
-                    displayCycleAvgHorizontalVelocity = cycleHorizontalVelocitySamples.stream()
-                            .mapToDouble(d -> d).average().orElse(0.0);
+                    displayCycleAvgVelocity = cycleVelocitySum / cycleVelocityCount;
+                    displayCycleAvgHorizontalVelocity = cycleHorizontalVelocitySum / cycleHorizontalVelocityCount;
                     cycleInitialized = true;
                     if (displayCycleAvgHorizontalVelocity != 0) {
                         cycleETA = distance / (displayCycleAvgHorizontalVelocity * 20);
                     } else {
                         cycleETA = 0.0;
                     }
-                    cycleVelocitySamples.clear();
-                    cycleHorizontalVelocitySamples.clear();
+                    cycleVelocitySum = 0.0;
+                    cycleVelocityCount = 0;
+                    cycleHorizontalVelocitySum = 0.0;
+                    cycleHorizontalVelocityCount = 0;
                 }
                 previousIsDescending = isDescending;
             } else {
                 // Abort partial cycle when leaving normal cruising state
-                cycleVelocitySamples.clear();
-                cycleHorizontalVelocitySamples.clear();
+                cycleVelocitySum = 0.0;
+                cycleVelocityCount = 0;
+                cycleHorizontalVelocitySum = 0.0;
+                cycleHorizontalVelocityCount = 0;
                 previousIsDescending = false;
                 cycleETA = 0.0;
             }
@@ -240,8 +246,10 @@ public class Hud {
     public static void clearHud() {
         velocityList.clear();
         velocityListHorizontal.clear();
-        cycleVelocitySamples.clear();
-        cycleHorizontalVelocitySamples.clear();
+        cycleVelocitySum = 0.0;
+        cycleVelocityCount = 0;
+        cycleHorizontalVelocitySum = 0.0;
+        cycleHorizontalVelocityCount = 0;
         displayCycleAvgVelocity = 0.0;
         displayCycleAvgHorizontalVelocity = 0.0;
         cycleETA = 0.0;
