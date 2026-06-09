@@ -87,6 +87,9 @@ public class Hud {
                 cycleHorizontalVelocityCount = 0;
                 previousIsDescending = false;
                 cycleETA = 0.0;
+                cycleInitialized = false;
+                displayCycleAvgVelocity = 0.0;
+                displayCycleAvgHorizontalVelocity = 0.0;
             }
 
             Level world = player.level();
