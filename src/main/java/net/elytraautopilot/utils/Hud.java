@@ -29,6 +29,7 @@ public class Hud {
     private static double displayCycleAvgHorizontalVelocity = 0.0;
     private static double cycleETA = 0.0;
     private static boolean cycleInitialized = false;
+    private static int cycleCompletedCount = 0;
 
     public static void tick() {
         _tick++;
@@ -66,7 +67,8 @@ public class Hud {
                     displayCycleAvgVelocity = cycleVelocitySum / cycleSampleCount;
                     displayCycleAvgHorizontalVelocity = cycleHorizontalVelocitySum / cycleSampleCount;
                     cycleInitialized = true;
-                    if (displayCycleAvgHorizontalVelocity != 0) {
+                    cycleCompletedCount++;
+                    if (displayCycleAvgHorizontalVelocity != 0 && cycleCompletedCount >= 2) {
                         cycleETA = distance / (displayCycleAvgHorizontalVelocity * 20);
                     } else {
                         cycleETA = 0.0;
@@ -84,6 +86,7 @@ public class Hud {
                 previousIsDescending = false;
                 cycleETA = 0.0;
                 cycleInitialized = false;
+                cycleCompletedCount = 0;
                 displayCycleAvgVelocity = 0.0;
                 displayCycleAvgHorizontalVelocity = 0.0;
             }
@@ -252,6 +255,7 @@ public class Hud {
         displayCycleAvgHorizontalVelocity = 0.0;
         cycleETA = 0.0;
         cycleInitialized = false;
+        cycleCompletedCount = 0;
         previousIsDescending = false;
     }
 }
