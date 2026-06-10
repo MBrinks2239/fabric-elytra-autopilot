@@ -53,6 +53,8 @@ public class ModConfig {
     public static final boolean showEtaDefault = true;
     public static final boolean showAutoLandDefault = true;
     public static final boolean showLandingStatusDefault = true;
+    public static final boolean useCycleAvgSpeedDefault = true;
+    public static final boolean smoothEtaDefault = true;
 
     // Flight profile defaults
     public static final int maxHeightDefault = 360;
@@ -102,6 +104,8 @@ public class ModConfig {
     public boolean showEta = showEtaDefault;
     public boolean showAutoLand = showAutoLandDefault;
     public boolean showLandingStatus = showLandingStatusDefault;
+    public boolean useCycleAvgSpeed = useCycleAvgSpeedDefault;
+    public boolean smoothEta = smoothEtaDefault;
 
     // Flight profile values
     public int maxHeight = maxHeightDefault;
@@ -256,6 +260,24 @@ public class ModConfig {
                                         showEtaDefault,
                                         () -> ModConfig.INSTANCE.showEta,
                                         newVal -> ModConfig.INSTANCE.showEta = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Component.translatable("config.elytraautopilot.gui.useCycleAvgSpeed"))
+                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.useCycleAvgSpeed.desc")))
+                                .binding(
+                                        useCycleAvgSpeedDefault,
+                                        () -> ModConfig.INSTANCE.useCycleAvgSpeed,
+                                        newVal -> ModConfig.INSTANCE.useCycleAvgSpeed = newVal)
+                                .controller(BooleanControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Component.translatable("config.elytraautopilot.gui.smoothEta"))
+                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.smoothEta.desc")))
+                                .binding(
+                                        smoothEtaDefault,
+                                        () -> ModConfig.INSTANCE.smoothEta,
+                                        newVal -> ModConfig.INSTANCE.smoothEta = newVal)
                                 .controller(BooleanControllerBuilder::create)
                                 .build())
                         .option(Option.<Boolean>createBuilder()

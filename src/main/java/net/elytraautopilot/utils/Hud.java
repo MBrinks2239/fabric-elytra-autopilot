@@ -20,6 +20,17 @@ public class Hud {
     private static int _index = -1;
     public static Component[] hudString;
 
+    // Cycle-based averaging fields
+    private static boolean previousIsDescending = false;
+    private static double cycleVelocitySum = 0.0;
+    private static double cycleHorizontalVelocitySum = 0.0;
+    private static int cycleSampleCount = 0;
+    private static double displayCycleAvgVelocity = 0.0;
+    private static double displayCycleAvgHorizontalVelocity = 0.0;
+    private static double cycleETA = 0.0;
+    private static boolean cycleInitialized = false;
+    private static int cycleCompletedCount = 0;
+
     public static void tick() {
         _tick++;
     }
@@ -44,6 +55,42 @@ public class Hud {
                 velocityList.set(_index, currentVelocity);
                 velocityListHorizontal.set(_index, currentVelocityHorizontal);
             }
+
+            // --- Cycle-based averaging ---
+            if (autoFlight && !isLanding && !forceLand) {
+                cycleVelocitySum += currentVelocity;
+                cycleHorizontalVelocitySum += currentVelocityHorizontal;
+                cycleSampleCount++;
+
+                if (previousIsDescending && !isDescending && cycleSampleCount > 0) {
+                    // Dive→Climb transition: one complete cycle finished
+                    displayCycleAvgVelocity = cycleVelocitySum / cycleSampleCount;
+                    displayCycleAvgHorizontalVelocity = cycleHorizontalVelocitySum / cycleSampleCount;
+                    cycleInitialized = true;
+                    cycleCompletedCount++;
+                    if (displayCycleAvgHorizontalVelocity != 0 && cycleCompletedCount >= 2) {
+                        cycleETA = distance / (displayCycleAvgHorizontalVelocity * 20);
+                    } else {
+                        cycleETA = 0.0;
+                    }
+                    cycleVelocitySum = 0.0;
+                    cycleHorizontalVelocitySum = 0.0;
+                    cycleSampleCount = 0;
+                }
+                previousIsDescending = isDescending;
+            } else {
+                // Abort partial cycle when leaving normal cruising state
+                cycleVelocitySum = 0.0;
+                cycleHorizontalVelocitySum = 0.0;
+                cycleSampleCount = 0;
+                previousIsDescending = false;
+                cycleETA = 0.0;
+                cycleInitialized = false;
+                cycleCompletedCount = 0;
+                displayCycleAvgVelocity = 0.0;
+                displayCycleAvgHorizontalVelocity = 0.0;
+            }
+
             Level world = player.level();
             int l = world.getMinY();
             Vec3 clientPos = player.position();
@@ -58,9 +105,17 @@ public class Hud {
             }
             _tick = 0;
 
-            // Compute averages if we have enough samples
+            // Update dead-reckoning ETA at the sampling cadence
+            if (ModConfig.INSTANCE.smoothEta && cycleCompletedCount >= 2 && cycleETA > 0 && isflytoActive && !forceLand) {
+                cycleETA = Math.max(0, cycleETA - gticks / 20.0);
+            }
+
+            // Compute averages — use cycle-based average when enabled and at least 2 complete cycles
             double avgVelocity = 0, avgHorizontalVelocity = 0;
-            if (velocityList.size() >= 10) {
+            if (ModConfig.INSTANCE.useCycleAvgSpeed && cycleCompletedCount >= 2) {
+                avgVelocity = displayCycleAvgVelocity;
+                avgHorizontalVelocity = displayCycleAvgHorizontalVelocity;
+            } else if (velocityList.size() >= 10) {
                 avgVelocity = velocityList.stream().mapToDouble(d -> d).average().orElse(0.0);
                 avgHorizontalVelocity = velocityListHorizontal.stream().mapToDouble(d -> d).average().orElse(0.0);
             }
@@ -143,10 +198,16 @@ public class Hud {
                                     .withStyle(ChatFormatting.LIGHT_PURPLE)
                     );
                 }
-                if (distance != 0 && ModConfig.INSTANCE.showEta) {
+                if (distance != 0 && ModConfig.INSTANCE.showEta && avgHorizontalVelocity != 0) {
+                    long displayETA;
+                    if (ModConfig.INSTANCE.smoothEta && cycleCompletedCount >= 2 && cycleETA > 0) {
+                        displayETA = Math.round(cycleETA);
+                    } else {
+                        displayETA = Math.round(distance / (avgHorizontalVelocity * 20));
+                    }
                     lines.add(
                             Component.translatable("text.elytraautopilot.hud.eta",
-                                    String.valueOf(Math.round(distance / (avgHorizontalVelocity * 20)))
+                                    String.valueOf(displayETA)
                             ).withStyle(ChatFormatting.LIGHT_PURPLE)
                     );
                 }
@@ -187,5 +248,14 @@ public class Hud {
     public static void clearHud() {
         velocityList.clear();
         velocityListHorizontal.clear();
+        cycleVelocitySum = 0.0;
+        cycleHorizontalVelocitySum = 0.0;
+        cycleSampleCount = 0;
+        displayCycleAvgVelocity = 0.0;
+        displayCycleAvgHorizontalVelocity = 0.0;
+        cycleETA = 0.0;
+        cycleInitialized = false;
+        cycleCompletedCount = 0;
+        previousIsDescending = false;
     }
 }
