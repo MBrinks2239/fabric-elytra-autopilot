@@ -4,7 +4,6 @@ import net.elytraautopilot.config.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -32,8 +31,6 @@ public class ElytraManager {
             lastUID = getItemUID(stack);
             swapChestplateSlot(elytraIndex, player);
             autoSwapIsActive = true;
-            // Send packet so server knows player is flying
-            player.connection.send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
             return true;
         }
 
@@ -62,7 +59,6 @@ public class ElytraManager {
         interactionManager.handleContainerInput(0, slot, 0, ContainerInput.PICKUP, player);
         interactionManager.handleContainerInput(0, CHESTPLATE_INDEX, 0, ContainerInput.PICKUP, player);
         interactionManager.handleContainerInput(0, slot, 0, ContainerInput.PICKUP, player);
-        player.connection.send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
     }
 
     private static int getItemUID(ItemStack stack) {
