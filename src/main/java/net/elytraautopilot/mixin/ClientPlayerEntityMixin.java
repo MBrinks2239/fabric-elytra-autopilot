@@ -4,6 +4,7 @@ import net.elytraautopilot.config.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.world.effect.MobEffects;
 import net.elytraautopilot.ElytraAutoPilot;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,6 +30,10 @@ public class ClientPlayerEntityMixin {
         if (canGlide(player)) { //&&
             // [Future] Replace with an event that fires before elytra take off.
             equipElytra(player);
+            // Set client-side flying flag AND send packet to server
+            // (Player.startFallFlying only sets the client flag, does NOT send the packet)
+            player.startFallFlying();
+            player.connection.send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
         }
     }
 
