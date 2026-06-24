@@ -1,6 +1,5 @@
 package net.elytraautopilot.utils;
 
-import net.elytraautopilot.ElytraAutoPilot;
 import net.elytraautopilot.config.ModConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -47,7 +46,8 @@ public class Hud {
 
         if (_tick >= gticks) {
             _index++;
-            if (_index >= 1200 / gticks) _index = 0;
+            if (_index >= 1200 / gticks)
+                _index = 0;
             if (velocityList.size() < 1200 / gticks) {
                 velocityList.add(currentVelocity);
                 velocityListHorizontal.add(currentVelocityHorizontal);
@@ -106,11 +106,13 @@ public class Hud {
             _tick = 0;
 
             // Update dead-reckoning ETA at the sampling cadence
-            if (ModConfig.INSTANCE.smoothEta && cycleCompletedCount >= 2 && cycleETA > 0 && isflytoActive && !forceLand) {
+            if (ModConfig.INSTANCE.smoothEta && cycleCompletedCount >= 2 && cycleETA > 0 && isflytoActive
+                    && !forceLand) {
                 cycleETA = Math.max(0, cycleETA - gticks / 20.0);
             }
 
-            // Compute averages — use cycle-based average when enabled and at least 2 complete cycles
+            // Compute averages — use cycle-based average when enabled and at least 2
+            // complete cycles
             double avgVelocity = 0, avgHorizontalVelocity = 0;
             if (ModConfig.INSTANCE.useCycleAvgSpeed && cycleCompletedCount >= 2) {
                 avgVelocity = displayCycleAvgVelocity;
@@ -124,79 +126,62 @@ public class Hud {
             List<Component> lines = new ArrayList<>();
 
             if (ModConfig.INSTANCE.showEnabled) {
-                lines.add(
-                        Component.translatable("text.elytraautopilot.hud.toggleAutoFlight")
-                                .append(
-                                        Component.translatable(autoFlight
-                                                ? "text.elytraautopilot.hud.true"
-                                                : "text.elytraautopilot.hud.false"
-                                        ).withStyle(autoFlight ? ChatFormatting.GREEN : ChatFormatting.RED)
-                                )
-                );
+                lines.add(Component.translatable("text.elytraautopilot.hud.toggleAutoFlight")
+                        .append(Component
+                                .translatable(
+                                        autoFlight ? "text.elytraautopilot.hud.true" : "text.elytraautopilot.hud.false")
+                                .withStyle(autoFlight ? ChatFormatting.GREEN : ChatFormatting.RED)));
             }
 
             if (ModConfig.INSTANCE.showAltitude) {
-                lines.add(
-                        Component.translatable("text.elytraautopilot.hud.altitude", String.format("%.2f", altitude))
-                                .withStyle(ChatFormatting.AQUA)
-                );
+                lines.add(Component.translatable("text.elytraautopilot.hud.altitude", String.format("%.2f", altitude))
+                        .withStyle(ChatFormatting.AQUA));
             }
 
             if (ModConfig.INSTANCE.showHeight) {
                 String heightStr = groundheight < 0 ? "???" : String.valueOf(Math.round(groundheight));
-                lines.add(
-                        Component.translatable("text.elytraautopilot.hud.heightFromGround", heightStr)
-                                .withStyle(ChatFormatting.AQUA)
-                );
+                lines.add(Component.translatable("text.elytraautopilot.hud.heightFromGround", heightStr)
+                        .withStyle(ChatFormatting.AQUA));
             }
 
             if (ModConfig.INSTANCE.showHeightReq) {
                 boolean ready = groundheight > ModConfig.INSTANCE.minHeight;
-                String req = ready
-                        ? "Ready"
-                        : String.valueOf(Math.round(ModConfig.INSTANCE.minHeight - groundheight));
-                lines.add(
-                        Component.translatable("text.elytraautopilot.hud.neededHeight")
-                                .withStyle(ChatFormatting.AQUA)
-                                .append(Component.literal(req).withStyle(ready ? ChatFormatting.GREEN : ChatFormatting.RED))
-                );
+                String req = ready ? "Ready" : String.valueOf(Math.round(ModConfig.INSTANCE.minHeight - groundheight));
+                lines.add(Component.translatable("text.elytraautopilot.hud.neededHeight").withStyle(ChatFormatting.AQUA)
+                        .append(Component.literal(req).withStyle(ready ? ChatFormatting.GREEN : ChatFormatting.RED)));
             }
 
             if (ModConfig.INSTANCE.showSpeed) {
-                lines.add(
-                        Component.translatable("text.elytraautopilot.hud.speed", String.format("%.2f", currentVelocity * 20))
-                                .withStyle(ChatFormatting.YELLOW)
-                );
+                lines.add(Component
+                        .translatable("text.elytraautopilot.hud.speed", String.format("%.2f", currentVelocity * 20))
+                        .withStyle(ChatFormatting.YELLOW));
             }
 
             if (ModConfig.INSTANCE.showAvgSpeed) {
                 if (avgVelocity == 0) {
-                    lines.add(
-                            Component.translatable("text.elytraautopilot.hud.calculating")
-                                    .withStyle(ChatFormatting.WHITE)
-                    );
+                    lines.add(Component.translatable("text.elytraautopilot.hud.calculating")
+                            .withStyle(ChatFormatting.WHITE));
                 } else {
-                    lines.add(
-                            Component.translatable("text.elytraautopilot.hud.avgSpeed", String.format("%.2f", avgVelocity * 20))
-                                    .withStyle(ChatFormatting.YELLOW)
-                    );
+                    lines.add(Component
+                            .translatable("text.elytraautopilot.hud.avgSpeed", String.format("%.2f", avgVelocity * 20))
+                            .withStyle(ChatFormatting.YELLOW));
                 }
             }
 
             if (ModConfig.INSTANCE.showHorizontalSpeed && avgVelocity != 0) {
                 lines.add(
-                        Component.translatable("text.elytraautopilot.hud.avgHSpeed", String.format("%.2f", avgHorizontalVelocity * 20))
-                                .withStyle(ChatFormatting.YELLOW)
-                );
+                        Component
+                                .translatable("text.elytraautopilot.hud.avgHSpeed",
+                                        String.format("%.2f", avgHorizontalVelocity * 20))
+                                .withStyle(ChatFormatting.YELLOW));
             }
 
-            // Fly-to / landing lines (you can also gate these with new config flags if you like)
+            // Fly-to / landing lines (you can also gate these with new config flags if you
+            // like)
             if (isflytoActive && !forceLand) {
                 if (ModConfig.INSTANCE.showFlyTo) {
-                    lines.add(
-                            Component.translatable("text.elytraautopilot.flyto", argXpos, argZpos)
-                                    .withStyle(ChatFormatting.LIGHT_PURPLE)
-                    );
+                    lines.add(Component.translatable("text.elytraautopilot.flyto", argXpos, argZpos)
+                            .withStyle(ChatFormatting.LIGHT_PURPLE));
                 }
                 if (distance != 0 && ModConfig.INSTANCE.showEta && avgHorizontalVelocity != 0) {
                     long displayETA;
@@ -205,45 +190,36 @@ public class Hud {
                     } else {
                         displayETA = Math.round(distance / (avgHorizontalVelocity * 20));
                     }
-                    lines.add(
-                            Component.translatable("text.elytraautopilot.hud.eta",
-                                    String.valueOf(displayETA)
-                            ).withStyle(ChatFormatting.LIGHT_PURPLE)
-                    );
+                    lines.add(Component.translatable("text.elytraautopilot.hud.eta", String.valueOf(displayETA))
+                            .withStyle(ChatFormatting.LIGHT_PURPLE));
                 }
                 if (ModConfig.INSTANCE.showAutoLand) {
-                    lines.add(
-                            Component.translatable("text.elytraautopilot.hud.autoLand")
-                                    .withStyle(ChatFormatting.LIGHT_PURPLE)
-                                    .append(
-                                            Component.translatable(ModConfig.INSTANCE.autoLanding
-                                                    ? "text.elytraautopilot.hud.enabled"
-                                                    : "text.elytraautopilot.hud.disabled"
-                                            ).withStyle(ModConfig.INSTANCE.autoLanding ? ChatFormatting.GREEN : ChatFormatting.RED)
-                                    )
-                    );
+                    lines.add(Component.translatable("text.elytraautopilot.hud.autoLand")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE)
+                            .append(Component
+                                    .translatable(ModConfig.INSTANCE.autoLanding
+                                            ? "text.elytraautopilot.hud.enabled"
+                                            : "text.elytraautopilot.hud.disabled")
+                                    .withStyle(ModConfig.INSTANCE.autoLanding
+                                            ? ChatFormatting.GREEN
+                                            : ChatFormatting.RED)));
                 }
                 if (isLanding && ModConfig.INSTANCE.showLandingStatus) {
-                    lines.add(
-                            Component.translatable("text.elytraautopilot.hud.landing")
-                                    .withStyle(ChatFormatting.LIGHT_PURPLE)
-                    );
+                    lines.add(Component.translatable("text.elytraautopilot.hud.landing")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE));
                 }
             }
 
             if (forceLand && ModConfig.INSTANCE.showLandingStatus) {
                 // Override or add a “forced landing” indicator
-                lines.add(
-                        Component.translatable("text.elytraautopilot.hud.landing")
-                                .withStyle(ChatFormatting.LIGHT_PURPLE)
-                );
+                lines.add(Component.translatable("text.elytraautopilot.hud.landing")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE));
             }
 
             // Finally, turn the list into your array
             hudString = lines.toArray(new Component[0]);
         }
     }
-
 
     public static void clearHud() {
         velocityList.clear();

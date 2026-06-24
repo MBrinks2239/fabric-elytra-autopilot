@@ -13,7 +13,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class CommandSuggestionProvider implements SuggestionProvider<FabricClientCommandSource> {
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<FabricClientCommandSource> context,
+            SuggestionsBuilder builder) {
         var locations = ModConfig.INSTANCE.flyLocations;
 
         for (String s : locations) {
@@ -21,13 +22,13 @@ public class CommandSuggestionProvider implements SuggestionProvider<FabricClien
             builder.suggest(tokens[0]);
         }
 
-        if(FabricLoader.getInstance().isModLoaded("xaerominimap")) {
+        if (FabricLoader.getInstance().isModLoaded("xaerominimap")) {
             var waypoints = XaeromapWaypointReader.GetXearomapWaypoints();
 
-            if(waypoints != null) {
+            if (waypoints != null) {
                 for (String s : waypoints) {
                     String[] tokens = s.split(";");
-                    builder.suggest('"'+tokens[0]+'"');
+                    builder.suggest('"' + tokens[0] + '"');
                 }
             }
         }

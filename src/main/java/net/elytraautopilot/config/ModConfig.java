@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.impl.util.log.Log;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
@@ -19,13 +18,10 @@ import java.util.List;
 
 public class ModConfig {
 
-    public static final Gson GSON = new GsonBuilder()
-            .setPrettyPrinting()
-            .serializeNulls()
-            .create();
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
-    public static final Path CONFIG_FILE = FabricLoader.getInstance()
-            .getConfigDir().resolve("fabric-elytra-autopilot.json");
+    public static final Path CONFIG_FILE = FabricLoader.getInstance().getConfigDir()
+            .resolve("fabric-elytra-autopilot.json");
 
     public static ModConfig INSTANCE = loadConfig(CONFIG_FILE.toFile());
 
@@ -134,384 +130,294 @@ public class ModConfig {
     public List<String> flyLocations = flyLocationsDefault;
 
     public static Screen createConfigScreen(Screen parent) {
-        return YetAnotherConfigLib.createBuilder()
-                .title(Component.translatable("config.elytraautopilot.gui"))
-                .category(ConfigCategory.createBuilder()
-                        .name(Component.translatable("config.elytraautopilot.gui"))
-                        .option(Option.<Boolean>createBuilder()
-                                .name(Component.translatable("config.elytraautopilot.gui.showgui"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.showgui.desc")))
-                                .binding(
-                                        showGuiDefault,
-                                        () -> ModConfig.INSTANCE.showGui,
-                                        newVal -> ModConfig.INSTANCE.showGui = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+        return YetAnotherConfigLib.createBuilder().title(Component.translatable("config.elytraautopilot.gui")).category(
+                ConfigCategory.createBuilder().name(Component.translatable("config.elytraautopilot.gui")).option(Option
+                        .<Boolean>createBuilder().name(Component.translatable("config.elytraautopilot.gui.showgui"))
+                        .description(
+                                OptionDescription.of(Component.translatable("config.elytraautopilot.gui.showgui.desc")))
+                        .binding(showGuiDefault, () -> ModConfig.INSTANCE.showGui,
+                                newVal -> ModConfig.INSTANCE.showGui = newVal)
+                        .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Integer>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.guiScale"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.guiScale.desc")))
-                                .binding(
-                                        guiScaleDefault,
-                                        () -> ModConfig.INSTANCE.guiScale,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.guiScale.desc")))
+                                .binding(guiScaleDefault, () -> ModConfig.INSTANCE.guiScale,
                                         newVal -> ModConfig.INSTANCE.guiScale = newVal)
                                 .controller(opt -> IntegerSliderControllerBuilder.create(opt)
                                         .range(minGuiScale, maxGuiScale).step(1))
                                 .build())
                         .option(Option.<Integer>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.guiX"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.guiX.desc")))
-                                .binding(
-                                        guiXDefault,
-                                        () -> ModConfig.INSTANCE.guiX,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.guiX.desc")))
+                                .binding(guiXDefault, () -> ModConfig.INSTANCE.guiX,
                                         newVal -> ModConfig.INSTANCE.guiX = newVal)
-                                .controller(opt ->
-                                        IntegerFieldControllerBuilder.create(opt)
-                                                .min(minGuiX)
-                                                .max(maxGuiX))
+                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minGuiX).max(maxGuiX))
                                 .build())
                         .option(Option.<Integer>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.guiY"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.guiY.desc")))
-                                .binding(
-                                        guiYDefault,
-                                        () -> ModConfig.INSTANCE.guiY,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.guiY.desc")))
+                                .binding(guiYDefault, () -> ModConfig.INSTANCE.guiY,
                                         newVal -> ModConfig.INSTANCE.guiY = newVal)
-                                .controller(opt ->
-                                        IntegerFieldControllerBuilder.create(opt)
-                                                .min(minGuiY)
-                                                .max(maxGuiY))
+                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minGuiY).max(maxGuiY))
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.enabled"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.enabled.desc")))
-                                .binding(
-                                        showEnabledDefault,
-                                        () -> ModConfig.INSTANCE.showEnabled,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.enabled.desc")))
+                                .binding(showEnabledDefault, () -> ModConfig.INSTANCE.showEnabled,
                                         newVal -> ModConfig.INSTANCE.showEnabled = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.altitude"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.altitude.desc")))
-                                .binding(
-                                        showAltitudeDefault,
-                                        () -> ModConfig.INSTANCE.showAltitude,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.altitude.desc")))
+                                .binding(showAltitudeDefault, () -> ModConfig.INSTANCE.showAltitude,
                                         newVal -> ModConfig.INSTANCE.showAltitude = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.height"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.height.desc")))
-                                .binding(
-                                        showHeightDefault,
-                                        () -> ModConfig.INSTANCE.showHeight,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.height.desc")))
+                                .binding(showHeightDefault, () -> ModConfig.INSTANCE.showHeight,
                                         newVal -> ModConfig.INSTANCE.showHeight = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.heightreq"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.heightreq.desc")))
-                                .binding(
-                                        showHeightReqDefault,
-                                        () -> ModConfig.INSTANCE.showHeightReq,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.heightreq.desc")))
+                                .binding(showHeightReqDefault, () -> ModConfig.INSTANCE.showHeightReq,
                                         newVal -> ModConfig.INSTANCE.showHeightReq = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.speed"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.speed.desc")))
-                                .binding(
-                                        showSpeedDefault,
-                                        () -> ModConfig.INSTANCE.showSpeed,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.speed.desc")))
+                                .binding(showSpeedDefault, () -> ModConfig.INSTANCE.showSpeed,
                                         newVal -> ModConfig.INSTANCE.showSpeed = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.avgspeed"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.avgspeed.desc")))
-                                .binding(
-                                        showAvgSpeedDefault,
-                                        () -> ModConfig.INSTANCE.showAvgSpeed,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.avgspeed.desc")))
+                                .binding(showAvgSpeedDefault, () -> ModConfig.INSTANCE.showAvgSpeed,
                                         newVal -> ModConfig.INSTANCE.showAvgSpeed = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.horizontalspeed"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.horizontalspeed.desc")))
-                                .binding(
-                                        showHorizontalSpeedDefault,
-                                        () -> ModConfig.INSTANCE.showHorizontalSpeed,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.horizontalspeed.desc")))
+                                .binding(showHorizontalSpeedDefault, () -> ModConfig.INSTANCE.showHorizontalSpeed,
                                         newVal -> ModConfig.INSTANCE.showHorizontalSpeed = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.flyto"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.flyto.desc")))
-                                .binding(
-                                        showFlyToDefault,
-                                        () -> ModConfig.INSTANCE.showFlyTo,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.flyto.desc")))
+                                .binding(showFlyToDefault, () -> ModConfig.INSTANCE.showFlyTo,
                                         newVal -> ModConfig.INSTANCE.showFlyTo = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.eta"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.eta.desc")))
-                                .binding(
-                                        showEtaDefault,
-                                        () -> ModConfig.INSTANCE.showEta,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.eta.desc")))
+                                .binding(showEtaDefault, () -> ModConfig.INSTANCE.showEta,
                                         newVal -> ModConfig.INSTANCE.showEta = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.useCycleAvgSpeed"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.useCycleAvgSpeed.desc")))
-                                .binding(
-                                        useCycleAvgSpeedDefault,
-                                        () -> ModConfig.INSTANCE.useCycleAvgSpeed,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.useCycleAvgSpeed.desc")))
+                                .binding(useCycleAvgSpeedDefault, () -> ModConfig.INSTANCE.useCycleAvgSpeed,
                                         newVal -> ModConfig.INSTANCE.useCycleAvgSpeed = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.smoothEta"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.smoothEta.desc")))
-                                .binding(
-                                        smoothEtaDefault,
-                                        () -> ModConfig.INSTANCE.smoothEta,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.smoothEta.desc")))
+                                .binding(smoothEtaDefault, () -> ModConfig.INSTANCE.smoothEta,
                                         newVal -> ModConfig.INSTANCE.smoothEta = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.autoland"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.autoland.desc")))
-                                .binding(
-                                        showAutoLandDefault,
-                                        () -> ModConfig.INSTANCE.showAutoLand,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.autoland.desc")))
+                                .binding(showAutoLandDefault, () -> ModConfig.INSTANCE.showAutoLand,
                                         newVal -> ModConfig.INSTANCE.showAutoLand = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.landingstatus"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.landingstatus.desc")))
-                                .binding(
-                                        showLandingStatusDefault,
-                                        () -> ModConfig.INSTANCE.showLandingStatus,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.gui.landingstatus.desc")))
+                                .binding(showLandingStatusDefault, () -> ModConfig.INSTANCE.showLandingStatus,
                                         newVal -> ModConfig.INSTANCE.showLandingStatus = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .build())
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("config.elytraautopilot.flightprofile"))
                         .option(Option.<Integer>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.maxHeight"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.maxHeight.desc")))
-                                .binding(
-                                        maxHeightDefault,
-                                        () -> ModConfig.INSTANCE.maxHeight,
+                                .description(OptionDescription.of(
+                                        Component.translatable("config.elytraautopilot.flightprofile.maxHeight.desc")))
+                                .binding(maxHeightDefault, () -> ModConfig.INSTANCE.maxHeight,
                                         newVal -> ModConfig.INSTANCE.maxHeight = newVal)
-                                .controller(opt ->
-                                        IntegerFieldControllerBuilder.create(opt)
-                                                .min(minMaxHeight)
-                                                .max(maxMaxHeight))
+                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minMaxHeight)
+                                        .max(maxMaxHeight))
                                 .build())
                         .option(Option.<Integer>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.minHeight"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.minHeight.desc")))
-                                .binding(
-                                        minHeightDefault,
-                                        () -> ModConfig.INSTANCE.minHeight,
+                                .description(OptionDescription.of(
+                                        Component.translatable("config.elytraautopilot.flightprofile.minHeight.desc")))
+                                .binding(minHeightDefault, () -> ModConfig.INSTANCE.minHeight,
                                         newVal -> ModConfig.INSTANCE.minHeight = newVal)
-                                .controller(opt ->
-                                        IntegerFieldControllerBuilder.create(opt)
-                                                .min(minMinHeight)
-                                                .max(maxMinHeight))
+                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minMinHeight)
+                                        .max(maxMinHeight))
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.autoLanding"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.autoLanding.desc")))
-                                .binding(
-                                        autoLandingDefault,
-                                        () -> ModConfig.INSTANCE.autoLanding,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.autoLanding.desc")))
+                                .binding(autoLandingDefault, () -> ModConfig.INSTANCE.autoLanding,
                                         newVal -> ModConfig.INSTANCE.autoLanding = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<String>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.playSoundOnLanding"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.playSoundOnLanding.desc")))
-                                .binding(
-                                        playSoundOnLandingDefault,
-                                        () -> ModConfig.INSTANCE.playSoundOnLanding,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.playSoundOnLanding.desc")))
+                                .binding(playSoundOnLandingDefault, () -> ModConfig.INSTANCE.playSoundOnLanding,
                                         newVal -> ModConfig.INSTANCE.playSoundOnLanding = newVal)
-                                .controller(StringControllerBuilder::create)
-                                .build())
+                                .controller(StringControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.autoLandSpeed"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.autoLandSpeed.desc")))
-                                .binding(
-                                        autoLandSpeedDefault,
-                                        () -> ModConfig.INSTANCE.autoLandSpeed,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.autoLandSpeed.desc")))
+                                .binding(autoLandSpeedDefault, () -> ModConfig.INSTANCE.autoLandSpeed,
                                         newVal -> ModConfig.INSTANCE.autoLandSpeed = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.turningSpeed"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.turningSpeed.desc")))
-                                .binding(
-                                        turningSpeedDefault,
-                                        () -> ModConfig.INSTANCE.turningSpeed,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.turningSpeed.desc")))
+                                .binding(turningSpeedDefault, () -> ModConfig.INSTANCE.turningSpeed,
                                         newVal -> ModConfig.INSTANCE.turningSpeed = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.takeOffPull"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.takeOffPull.desc")))
-                                .binding(
-                                        takeOffPullDefault,
-                                        () -> ModConfig.INSTANCE.takeOffPull,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.takeOffPull.desc")))
+                                .binding(takeOffPullDefault, () -> ModConfig.INSTANCE.takeOffPull,
                                         newVal -> ModConfig.INSTANCE.takeOffPull = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.riskyLanding"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.riskyLanding.desc")))
-                                .binding(
-                                        riskyLandingDefault,
-                                        () -> ModConfig.INSTANCE.riskyLanding,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.riskyLanding.desc")))
+                                .binding(riskyLandingDefault, () -> ModConfig.INSTANCE.riskyLanding,
                                         newVal -> ModConfig.INSTANCE.riskyLanding = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.poweredFlight"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.poweredFlight.desc")))
-                                .binding(
-                                        poweredFlightDefault,
-                                        () -> ModConfig.INSTANCE.poweredFlight,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.poweredFlight.desc")))
+                                .binding(poweredFlightDefault, () -> ModConfig.INSTANCE.poweredFlight,
                                         newVal -> ModConfig.INSTANCE.poweredFlight = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.elytraHotswap"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.elytraHotswap.desc")))
-                                .binding(
-                                        elytraHotswapDefault,
-                                        () -> ModConfig.INSTANCE.elytraHotswap,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.elytraHotswap.desc")))
+                                .binding(elytraHotswapDefault, () -> ModConfig.INSTANCE.elytraHotswap,
                                         newVal -> ModConfig.INSTANCE.elytraHotswap = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.fireworkHotswap"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.fireworkHotswap.desc")))
-                                .binding(
-                                        fireworkHotswapDefault,
-                                        () -> ModConfig.INSTANCE.fireworkHotswap,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.fireworkHotswap.desc")))
+                                .binding(fireworkHotswapDefault, () -> ModConfig.INSTANCE.fireworkHotswap,
                                         newVal -> ModConfig.INSTANCE.fireworkHotswap = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.flightprofile.emergencyLand"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.emergencyLand.desc")))
-                                .binding(
-                                        emergencyLandDefault,
-                                        () -> ModConfig.INSTANCE.emergencyLand,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.emergencyLand.desc")))
+                                .binding(emergencyLandDefault, () -> ModConfig.INSTANCE.emergencyLand,
                                         newVal -> ModConfig.INSTANCE.emergencyLand = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .option(Option.<Integer>createBuilder()
-                                .name(Component.translatable("config.elytraautopilot.flightprofile.elytraReplaceDurability"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.flightprofile.elytraReplaceDurability.desc")))
-                                .binding(
-                                        elytraReplaceDurabilityDefault,
+                                .name(Component
+                                        .translatable("config.elytraautopilot.flightprofile.elytraReplaceDurability"))
+                                .description(OptionDescription.of(Component.translatable(
+                                        "config.elytraautopilot.flightprofile.elytraReplaceDurability.desc")))
+                                .binding(elytraReplaceDurabilityDefault,
                                         () -> ModConfig.INSTANCE.elytraReplaceDurability,
                                         newVal -> ModConfig.INSTANCE.elytraReplaceDurability = newVal)
-                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(3).max(430))
-                                .build())
-                        .option(Option.<Boolean>createBuilder()
-                                .name(Component.nullToEmpty("Elytra Auto equip/swap"))
-                                .description(OptionDescription.of(Component.nullToEmpty("Enable automatic elytra equip or chestplate swap when double jump (try to glide)")))
-                                .binding(
-                                        elytraAutoSwapDefault,
-                                        () -> ModConfig.INSTANCE.elytraAutoSwap,
+                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(3).max(430)).build())
+                        .option(Option.<Boolean>createBuilder().name(Component.nullToEmpty("Elytra Auto equip/swap"))
+                                .description(OptionDescription.of(Component.nullToEmpty(
+                                        "Enable automatic elytra equip or chestplate swap when double jump (try to glide)")))
+                                .binding(elytraAutoSwapDefault, () -> ModConfig.INSTANCE.elytraAutoSwap,
                                         newVal -> ModConfig.INSTANCE.elytraAutoSwap = newVal)
-                                .controller(BooleanControllerBuilder::create)
-                                .build())
+                                .controller(BooleanControllerBuilder::create).build())
                         .build())
-                .category(ConfigCategory.createBuilder()
-                        .name(Component.translatable("config.elytraautopilot.advanced"))
+                .category(ConfigCategory.createBuilder().name(Component.translatable("config.elytraautopilot.advanced"))
                         .option(Option.<Integer>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.groundCheckTicks"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.advanced.groundCheckTicks.desc")))
-                                .binding(
-                                        groundCheckTicksDefault,
-                                        () -> ModConfig.INSTANCE.groundCheckTicks,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.advanced.groundCheckTicks.desc")))
+                                .binding(groundCheckTicksDefault, () -> ModConfig.INSTANCE.groundCheckTicks,
                                         newVal -> ModConfig.INSTANCE.groundCheckTicks = newVal)
-                                .controller(IntegerFieldControllerBuilder::create)
-                                .build())
+                                .controller(IntegerFieldControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.pullUpAngle"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.advanced.pullUpAngle.desc")))
-                                .binding(
-                                        pullUpAngleDefault,
-                                        () -> ModConfig.INSTANCE.pullUpAngle,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.advanced.pullUpAngle.desc")))
+                                .binding(pullUpAngleDefault, () -> ModConfig.INSTANCE.pullUpAngle,
                                         newVal -> ModConfig.INSTANCE.pullUpAngle = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.pullDownAngle"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.advanced.pullDownAngle.desc")))
-                                .binding(
-                                        pullDownAngleDefault,
-                                        () -> ModConfig.INSTANCE.pullDownAngle,
+                                .description(OptionDescription.of(
+                                        Component.translatable("config.elytraautopilot.advanced.pullDownAngle.desc")))
+                                .binding(pullDownAngleDefault, () -> ModConfig.INSTANCE.pullDownAngle,
                                         newVal -> ModConfig.INSTANCE.pullDownAngle = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.pullUpMinVelocity"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.advanced.pullUpMinVelocity.desc")))
-                                .binding(
-                                        pullUpMinVelocityDefault,
-                                        () -> ModConfig.INSTANCE.pullUpMinVelocity,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.advanced.pullUpMinVelocity.desc")))
+                                .binding(pullUpMinVelocityDefault, () -> ModConfig.INSTANCE.pullUpMinVelocity,
                                         newVal -> ModConfig.INSTANCE.pullUpMinVelocity = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.pullDownMaxVelocity"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.advanced.pullDownMaxVelocity.desc")))
-                                .binding(
-                                        pullDownMaxVelocityDefault,
-                                        () -> ModConfig.INSTANCE.pullDownMaxVelocity,
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.advanced.pullDownMaxVelocity.desc")))
+                                .binding(pullDownMaxVelocityDefault, () -> ModConfig.INSTANCE.pullDownMaxVelocity,
                                         newVal -> ModConfig.INSTANCE.pullDownMaxVelocity = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.pullUpSpeed"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.advanced.pullUpSpeed.desc")))
-                                .binding(
-                                        pullUpSpeedDefault,
-                                        () -> ModConfig.INSTANCE.pullUpSpeed,
+                                .description(OptionDescription
+                                        .of(Component.translatable("config.elytraautopilot.advanced.pullUpSpeed.desc")))
+                                .binding(pullUpSpeedDefault, () -> ModConfig.INSTANCE.pullUpSpeed,
                                         newVal -> ModConfig.INSTANCE.pullUpSpeed = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(Option.<Double>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.pullDownSpeed"))
-                                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.advanced.pullDownSpeed.desc")))
-                                .binding(
-                                        pullDownSpeedDefault,
-                                        () -> ModConfig.INSTANCE.pullDownSpeed,
+                                .description(OptionDescription.of(
+                                        Component.translatable("config.elytraautopilot.advanced.pullDownSpeed.desc")))
+                                .binding(pullDownSpeedDefault, () -> ModConfig.INSTANCE.pullDownSpeed,
                                         newVal -> ModConfig.INSTANCE.pullDownSpeed = newVal)
-                                .controller(DoubleFieldControllerBuilder::create)
-                                .build())
+                                .controller(DoubleFieldControllerBuilder::create).build())
                         .option(ListOption.<String>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.flyLocations"))
-                                .binding(
-                                        flyLocationsDefault,
-                                        () -> ModConfig.INSTANCE.flyLocations,
+                                .binding(flyLocationsDefault, () -> ModConfig.INSTANCE.flyLocations,
                                         newVal -> ModConfig.INSTANCE.flyLocations = newVal)
-                                .controller(StringControllerBuilder::create)
-                                .initial("Location;0;0")
-                                .build())
+                                .controller(StringControllerBuilder::create).initial("Location;0;0").build())
                         .build())
-                .save(() -> INSTANCE.saveConfig(CONFIG_FILE.toFile()))
-                .build()
-                .generateScreen(parent);
+                .save(() -> INSTANCE.saveConfig(CONFIG_FILE.toFile())).build().generateScreen(parent);
     }
 
     public void saveConfig(File file) {
@@ -529,8 +435,7 @@ public class ModConfig {
 
         if (file.exists()) {
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
-            )) {
+                    new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
                 config = GSON.fromJson(reader, ModConfig.class);
             } catch (IOException e) {
                 e.printStackTrace();

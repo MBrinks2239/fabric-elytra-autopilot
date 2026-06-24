@@ -26,26 +26,13 @@ public class KeyBindings {
                 ? "key." + modid + ".toggle"
                 : "key." + modid + ".toggle_no_cloth";
 
-        landBinding = new KeyMapping(
-                "key." + modid + ".land",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_RIGHT_SHIFT,
-                CATEGORY
-        );
+        landBinding = new KeyMapping("key." + modid + ".land", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT,
+                CATEGORY);
 
-        takeoffBinding = new KeyMapping(
-                "key." + modid + ".takeoff",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_RIGHT_ALT,
-                CATEGORY
-        );
+        takeoffBinding = new KeyMapping("key." + modid + ".takeoff", InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_RIGHT_ALT, CATEGORY);
 
-        configBinding = new KeyMapping(
-                key,
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_R,
-                CATEGORY
-        );
+        configBinding = new KeyMapping(key, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY);
 
         KeyMappingHelper.registerKeyMapping(configBinding);
         KeyMappingHelper.registerKeyMapping(landBinding);

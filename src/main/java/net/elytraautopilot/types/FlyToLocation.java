@@ -13,7 +13,7 @@ public class FlyToLocation {
 
     public static FlyToLocation ConvertStringToLocation(String configLocation) throws InvalidLocationException {
         String[] tokens = configLocation.split(";");
-        if(tokens.length != 3) {
+        if (tokens.length != 3) {
             ModConfig.INSTANCE.flyLocations.remove(configLocation);
             ClientCommands.bufferSave = true;
             throw new InvalidLocationException("Error in reading Fly Location list entry!");
