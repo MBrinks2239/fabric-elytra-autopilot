@@ -2,6 +2,7 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id 'com.diffplug.spotless' version '7.0.3'
 }
 
 version = project.mod_version
@@ -104,5 +105,35 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+	}
+}
+
+spotless {
+	java {
+		target 'src/main/java/**/*.java'
+		eclipse()
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+		leadingTabsToSpaces(4)
+	}
+
+	groovyGradle {
+		target '*.gradle'
+		trimTrailingWhitespace()
+		endWithNewline()
+		leadingTabsToSpaces(4)
+	}
+
+	json {
+		target 'src/main/resources/**/*.json'
+		gson()
+			.indentWithSpaces(2)
+	}
+
+	format 'properties', {
+		target 'gradle.properties'
+		trimTrailingWhitespace()
+		endWithNewline()
 	}
 }
