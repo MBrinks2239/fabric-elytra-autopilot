@@ -43,7 +43,7 @@ public class ElytraManager {
 
     public static boolean equipChestplate(LocalPlayer player) {
         int chestplateIndex = getLastChestplateIndex(player);
-        if(chestplateIndex != -100) {
+        if (chestplateIndex != -100) {
             swapChestplateSlot(chestplateIndex, player);
             lastUID = -100;
             autoSwapIsActive = false;
@@ -62,13 +62,15 @@ public class ElytraManager {
     }
 
     private static int getItemUID(ItemStack stack) {
-        if (stack.isEmpty()) return -100;
+        if (stack.isEmpty())
+            return -100;
         return stack.getHoverName().hashCode() + stack.getEnchantments().hashCode() + stack.getDamageValue();
     }
 
     private static int getLastChestplateIndex(LocalPlayer player) {
         Inventory inv = player.getInventory();
-        if (inv == null) return -100;
+        if (inv == null)
+            return -100;
 
         for (int slot : slotArray()) {
             ItemStack stack = inv.getItem(slot);
@@ -81,7 +83,8 @@ public class ElytraManager {
 
     public static int getElytraIndex(Player player) {
         Inventory inv = player.getInventory();
-        if (inv == null) return -100;
+        if (inv == null)
+            return -100;
 
         var world = player.level();
 
@@ -91,7 +94,8 @@ public class ElytraManager {
 
         for (int slot : slotArray()) {
             ItemStack stack = inv.getItem(slot);
-            if (!stack.is(Items.ELYTRA) || stack.getDamageValue() >= (stack.getMaxDamage() - ModConfig.INSTANCE.elytraReplaceDurability)) {
+            if (!stack.is(Items.ELYTRA)
+                    || stack.getDamageValue() >= (stack.getMaxDamage() - ModConfig.INSTANCE.elytraReplaceDurability)) {
                 continue;
             }
 
@@ -109,7 +113,8 @@ public class ElytraManager {
                 priority = 4;
             }
 
-            if (priority < bestPriority || (priority == bestPriority && stack.getDamageValue() > bestItemStack.getDamageValue())) {
+            if (priority < bestPriority
+                    || (priority == bestPriority && stack.getDamageValue() > bestItemStack.getDamageValue())) {
                 bestSlot = slot;
                 bestItemStack = stack;
                 bestPriority = priority;
@@ -121,7 +126,7 @@ public class ElytraManager {
 
     private static boolean elytraHasMending(ItemStack elytra, Level world) {
         var registry = world.registryAccess().lookup(Registries.ENCHANTMENT);
-        if(registry.isEmpty() || registry.get().get(Enchantments.MENDING).isEmpty())
+        if (registry.isEmpty() || registry.get().get(Enchantments.MENDING).isEmpty())
             return false;
 
         int res = EnchantmentHelper.getItemEnchantmentLevel(registry.get().get(Enchantments.MENDING).get(), elytra);
@@ -131,34 +136,36 @@ public class ElytraManager {
 
     private static int elytraGetUnbreakingLevel(ItemStack elytra, Level world) {
         var registry = world.registryAccess().lookup(Registries.ENCHANTMENT);
-        if(registry.isEmpty() || registry.get().get(Enchantments.UNBREAKING).isEmpty())
+        if (registry.isEmpty() || registry.get().get(Enchantments.UNBREAKING).isEmpty())
             return 0;
 
         return EnchantmentHelper.getItemEnchantmentLevel(registry.get().get(Enchantments.UNBREAKING).get(), elytra);
     }
 
     public static int DataSlotToNetworkSlot(int index) {
-        if(index == 100)
+        if (index == 100)
             index = 8;
-        else if(index == 101)
+        else if (index == 101)
             index = 7;
-        else if(index == 102)
+        else if (index == 102)
             index = 6;
-        else if(index == 103)
+        else if (index == 103)
             index = 5;
-        else if(index == -106 || index == 40)
+        else if (index == -106 || index == 40)
             index = 45;
-        else if(index <= 8 && index != -100)
+        else if (index <= 8 && index != -100)
             index += 36;
-        else if(index >= 80 && index <= 83)
+        else if (index >= 80 && index <= 83)
             index -= 79;
         return index;
     }
 
     public static int[] slotArray() {
         int[] range = new int[37];
-        for (int i = 0; i < 9; i++) range[i] = 8 - i;
-        for (int i = 9; i < 36; i++) range[i] = 35 - (i - 9);
+        for (int i = 0; i < 9; i++)
+            range[i] = 8 - i;
+        for (int i = 9; i < 36; i++)
+            range[i] = 35 - (i - 9);
         range[36] = 40;
         return range;
     }

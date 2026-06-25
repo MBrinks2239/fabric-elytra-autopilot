@@ -23,16 +23,9 @@ public class HudRenderer {
 
             // Draw the lines
             for (Component line : Hud.hudString) {
-                context.text(
-                        client.font,
-                        line.getVisualOrderText(),
-                        stringX,
-                        stringY,
-                        0xFFFFFFFF
-                );
+                context.text(client.font, line.getVisualOrderText(), stringX, stringY, 0xFFFFFFFF);
                 stringY += lineHeight;
             }
         }
     }
 }
-
