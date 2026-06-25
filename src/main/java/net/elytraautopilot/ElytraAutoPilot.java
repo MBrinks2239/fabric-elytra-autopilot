@@ -166,8 +166,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 if (isChained) {
                     isflytoActive = true;
                     isChained = false;
-                    minecraftClient.gui.getChat().addClientSystemMessage(
-                            Component.translatable("text.elytraautopilot.flyto", argXpos, argZpos)
+                    Minecraft.getInstance().player
+                            .sendOverlayMessage(Component.translatable("text.elytraautopilot.flyto", argXpos, argZpos)
                                     .withStyle(ChatFormatting.GREEN));
                 }
                 return;
@@ -427,8 +427,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 }
             } else {
                 // Otherwise, we open the settings if cloth is loaded
-                Screen configScreen = ModConfig.createConfigScreen(minecraftClient.screen);
-                minecraftClient.setScreen(configScreen);
+                Screen configScreen = ModConfig.createConfigScreen(minecraftClient.gui.screen());
+                minecraftClient.gui.setScreen(configScreen);
             }
         }
         configPressed = KeyBindings.configBinding.isDown();

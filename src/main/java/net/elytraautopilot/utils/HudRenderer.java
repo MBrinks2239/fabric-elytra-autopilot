@@ -12,7 +12,7 @@ public class HudRenderer {
     public static void drawHud(GuiGraphicsExtractor context, DeltaTracker tickCounter) {
         Minecraft client = Minecraft.getInstance();
 
-        if (client.screen == null && ElytraAutoPilot.calculateHud && Hud.hudString != null) {
+        if (client.gui.screen() == null && ElytraAutoPilot.calculateHud && Hud.hudString != null) {
             int screenWidth = context.guiWidth();
             int screenHeight = context.guiHeight();
 
