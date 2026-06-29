@@ -64,6 +64,8 @@
   "config.elytraautopilot.flightprofile.fireworkHotswap.desc": "Refills fireworks automatically",
   "config.elytraautopilot.flightprofile.emergencyLand": "Emergency landing",
   "config.elytraautopilot.flightprofile.emergencyLand.desc": "Enable emergency landing mode",
+  "config.elytraautopilot.flightprofile.cameraDecoupled": "Camera Decoupled",
+  "config.elytraautopilot.flightprofile.cameraDecoupled.desc": "Decouple camera from flight control during autopilot, allowing free look",
   "config.elytraautopilot.flightprofile.elytraReplaceDurability": "Elytra replace at durability",
   "config.elytraautopilot.flightprofile.elytraReplaceDurability.desc": "At which durability an elytra is considered unusable and will either be replaced or forcelanded if enabled",
   "config.elytraautopilot.advanced": "Advanced",

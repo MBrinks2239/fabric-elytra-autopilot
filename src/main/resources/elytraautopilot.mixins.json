@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [],
   "client": [
-    "ClientPlayerEntityMixin"
+    "ClientPlayerEntityMixin",
+    "MouseHandlerMixin",
+    "CameraMixin"
   ],
   "injectors": {
     "defaultRequire": 1

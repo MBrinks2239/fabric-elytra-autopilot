@@ -3,6 +3,7 @@ package net.elytraautopilot;
 import net.elytraautopilot.commands.ClientCommands;
 import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.utils.ElytraManager;
+import net.elytraautopilot.utils.FreeCameraState;
 import net.elytraautopilot.utils.Hud;
 import net.elytraautopilot.utils.HudRenderer;
 import net.elytraautopilot.utils.KeyBindings;
@@ -84,6 +85,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
     public static String getModId() {
         return MODID;
     }
+
     public static void takeoff() {
         LocalPlayer player = minecraftClient.player;
         if (!onTakeoff) {
@@ -163,10 +165,11 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 minecraftClient.options.keyJump.setDown(false);
                 autoFlight = true;
                 pitchMod = 3f;
+                FreeCameraState.init();
                 if (isChained) {
                     isflytoActive = true;
                     isChained = false;
-                    Minecraft.getInstance().player
+                    minecraftClient.player
                             .sendOverlayMessage(Component.translatable("text.elytraautopilot.flyto", argXpos, argZpos)
                                     .withStyle(ChatFormatting.GREEN));
                 }
@@ -190,6 +193,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 minecraftClient.options.keyUse.setDown(currentVelocity < 0.75f && player.getXRot() == -90f);
         }
     }
+
     private void onScreenTick() // Once every screen frame
     {
         // Stops logic when paused.
@@ -307,6 +311,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
             pullUp = false;
             pitchMod = 1f;
             pullDown = false;
+            FreeCameraState.reset();
         }
     }
 
@@ -423,6 +428,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                     if (autoFlight) {
                         isDescending = true;
                         pitchMod = 3f;
+                        FreeCameraState.init();
                     }
                 }
             } else {
