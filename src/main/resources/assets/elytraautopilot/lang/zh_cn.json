@@ -64,6 +64,8 @@
   "config.elytraautopilot.flightprofile.fireworkHotswap.desc": "自动补充烟花",
   "config.elytraautopilot.flightprofile.emergencyLand": "紧急着陆",
   "config.elytraautopilot.flightprofile.emergencyLand.desc": "启用紧急降落模式",
+  "config.elytraautopilot.flightprofile.cameraDecoupled": "镜头解绑",
+  "config.elytraautopilot.flightprofile.cameraDecoupled.desc": "自动驾驶时镜头与飞行控制解绑，让你可以自由观察",
   "config.elytraautopilot.advanced": "高级设置",
   "config.elytraautopilot.advanced.groundCheckTicks": "检查地面前的刻",
   "config.elytraautopilot.advanced.groundCheckTicks.desc": "检查地面前的刻数",

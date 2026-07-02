@@ -8,6 +8,7 @@ import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.exceptions.InvalidLocationException;
 import net.elytraautopilot.types.FlyToLocation;
 import net.elytraautopilot.utils.CommandSuggestionProvider;
+import net.elytraautopilot.utils.FreeCameraState;
 import net.elytraautopilot.xaeromapintegration.XaeromapWaypointReader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -74,6 +75,7 @@ public class ClientCommands {
                                                             "Z");
                                                     ElytraAutoPilot.isflytoActive = true;
                                                     ElytraAutoPilot.pitchMod = 3f;
+                                                    FreeCameraState.init();
                                                     context.getSource().sendFeedback(Component
                                                             .translatable("text.elytraautopilot.flyto",
                                                                     ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)
@@ -271,6 +273,7 @@ public class ClientCommands {
                 ElytraAutoPilot.argZpos = location.Z;
                 ElytraAutoPilot.isflytoActive = true;
                 ElytraAutoPilot.pitchMod = 3f;
+                FreeCameraState.init();
 
                 context.getSource().sendFeedback(Component
                         .translatable("text.elytraautopilot.flyto", ElytraAutoPilot.argXpos, ElytraAutoPilot.argZpos)

@@ -71,6 +71,7 @@ public class ModConfig {
     public static final int elytraReplaceDurabilityDefault = 20;
     public static final boolean emergencyLandDefault = true;
     public static final boolean elytraAutoSwapDefault = false;
+    public static final boolean cameraDecoupledDefault = false;
 
     // Advanced defaults
     public static final int groundCheckTicksDefault = 1;
@@ -117,6 +118,7 @@ public class ModConfig {
     public boolean fireworkHotswap = fireworkHotswapDefault;
     public boolean emergencyLand = emergencyLandDefault;
     public boolean elytraAutoSwap = elytraAutoSwapDefault;
+    public boolean cameraDecoupled = cameraDecoupledDefault;
 
     // Advanced values
     public int groundCheckTicks = groundCheckTicksDefault;
@@ -359,6 +361,13 @@ public class ModConfig {
                                         "Enable automatic elytra equip or chestplate swap when double jump (try to glide)")))
                                 .binding(elytraAutoSwapDefault, () -> ModConfig.INSTANCE.elytraAutoSwap,
                                         newVal -> ModConfig.INSTANCE.elytraAutoSwap = newVal)
+                                .controller(BooleanControllerBuilder::create).build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Component.translatable("config.elytraautopilot.flightprofile.cameraDecoupled"))
+                                .description(OptionDescription.of(Component
+                                        .translatable("config.elytraautopilot.flightprofile.cameraDecoupled.desc")))
+                                .binding(cameraDecoupledDefault, () -> ModConfig.INSTANCE.cameraDecoupled,
+                                        newVal -> ModConfig.INSTANCE.cameraDecoupled = newVal)
                                 .controller(BooleanControllerBuilder::create).build())
                         .build())
                 .category(ConfigCategory.createBuilder().name(Component.translatable("config.elytraautopilot.advanced"))
