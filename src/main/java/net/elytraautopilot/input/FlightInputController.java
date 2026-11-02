@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.component.SwingAnimation;
 
 /**
  * Tick-driven use/jump actuators for takeoff and powered flight.
@@ -21,6 +22,7 @@ import net.minecraft.world.InteractionResult;
  * the player is using an item, this controller will not restock or fire.
  */
 public final class FlightInputController {
+
     private static final int USE_COOLDOWN_TICKS = 4;
 
     private enum JumpState {
@@ -194,8 +196,8 @@ public final class FlightInputController {
         }
         InteractionResult result = client.gameMode.useItem(player, hand);
         if (result instanceof InteractionResult.Success success
-                && success.swingSource() == InteractionResult.SwingSource.CLIENT) {
-            player.swing(hand);
+                && success.swingSource() == InteractionResult.SwingSource.PREDICTED) {
+            player.swing(hand, SwingAnimation.DEFAULT, true);
         }
     }
 }

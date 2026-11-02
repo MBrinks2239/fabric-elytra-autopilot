@@ -1,6 +1,7 @@
 package net.elytraautopilot.utils;
 
 import com.mojang.blaze3d.platform.InputConstants;
+
 import net.elytraautopilot.ElytraAutoPilot;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.loader.api.FabricLoader;
@@ -8,6 +9,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 
 public class KeyBindings {
+
     public static KeyMapping configBinding;
     public static KeyMapping landBinding;
     public static KeyMapping takeoffBinding;
