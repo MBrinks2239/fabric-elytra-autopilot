@@ -2,6 +2,7 @@ package net.elytraautopilot;
 
 import net.elytraautopilot.commands.ClientCommands;
 import net.elytraautopilot.config.ModConfig;
+import net.elytraautopilot.input.FlightInputController;
 import net.elytraautopilot.strategy.FlightPhase;
 import net.elytraautopilot.strategy.FlightStrategy;
 import net.elytraautopilot.utils.ElytraManager;
@@ -22,7 +23,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -172,52 +172,48 @@ public class ElytraAutoPilot implements ClientModInitializer {
                     n++;
                 }
                 takeoffCooldown = TAKEOFF_COOLDOWN_TICKS;
-                minecraftClient.options.keyJump.setDown(true);
+                FlightInputController.requestTakeoffJump();
             }
             return;
         }
         if (player != null) {
             if (groundheight > ModConfig.INSTANCE.minHeight) {
-                onTakeoff = false;
-                minecraftClient.options.keyUse.setDown(false);
-                minecraftClient.options.keyJump.setDown(false);
-                autoFlight = true;
-                pitchMod = 3f;
-                // Initialize strategy phase based on current altitude
-                if (ModConfig.INSTANCE.strategyMode && climbStrategy != null && cruiseStrategy != null) {
-                    strategyPhase = player.position().y >= ModConfig.INSTANCE.cruiseAltitudeMax
-                            ? FlightPhase.CRUISE
-                            : FlightPhase.CLIMB;
-                    climbTick = 0;
-                    cruiseTick = 0;
-                }
-                FreeCameraState.init();
-                if (isChained) {
-                    isflytoActive = true;
-                    isChained = false;
-                    minecraftClient.player
-                            .sendOverlayMessage(Component.translatable("text.elytraautopilot.flyto", argXpos, argZpos)
-                                    .withStyle(ChatFormatting.GREEN));
-                }
+                completeTakeoff(player);
                 return;
             }
-            if (!player.isFallFlying())
-                minecraftClient.options.keyJump.setDown(!minecraftClient.options.keyJump.isDown());
-            Item itemMain = player.getMainHandItem().getItem();
-            Item itemOff = player.getOffhandItem().getItem();
-            boolean hasFirework = (itemMain == Items.FIREWORK_ROCKET || itemOff == Items.FIREWORK_ROCKET);
-            if (!hasFirework) {
-                if (!tryRestockFirework(player)) {
-                    minecraftClient.options.keyUse.setDown(false);
-                    minecraftClient.options.keyJump.setDown(false);
-                    onTakeoff = false;
-                    player.sendOverlayMessage(Component.translatable("text.elytraautopilot.takeoffAbort.noFirework")
-                            .withStyle(ChatFormatting.RED));
-                    doGlide = true;
-                }
-            } else
-                minecraftClient.options.keyUse.setDown(currentVelocity < 0.75f && player.getXRot() == -90f);
+            boolean boost = currentVelocity < 0.75f && player.getXRot() <= -89.5f;
+            FlightInputController.requestTakeoff(boost);
         }
+    }
+
+    private static void completeTakeoff(LocalPlayer player) {
+        onTakeoff = false;
+        FlightInputController.reset();
+        autoFlight = true;
+        pitchMod = 3f;
+        if (ModConfig.INSTANCE.strategyMode && climbStrategy != null && cruiseStrategy != null) {
+            strategyPhase = player.position().y >= ModConfig.INSTANCE.cruiseAltitudeMax
+                    ? FlightPhase.CRUISE
+                    : FlightPhase.CLIMB;
+            climbTick = 0;
+            cruiseTick = 0;
+        }
+        FreeCameraState.init();
+        if (isChained) {
+            isflytoActive = true;
+            isChained = false;
+            player.sendOverlayMessage(Component.translatable("text.elytraautopilot.flyto", argXpos, argZpos)
+                    .withStyle(ChatFormatting.GREEN));
+        }
+    }
+
+    private static void abortTakeoff(LocalPlayer player) {
+        onTakeoff = false;
+        takeoffCooldown = 0;
+        FlightInputController.reset();
+        player.sendOverlayMessage(
+                Component.translatable("text.elytraautopilot.takeoffAbort.noFirework").withStyle(ChatFormatting.RED));
+        doGlide = true;
     }
 
     private void onScreenTick() // Once every screen frame
@@ -317,8 +313,6 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 if (pitch <= ModConfig.INSTANCE.pullUpAngle) {
                     player.setXRot((float) ModConfig.INSTANCE.pullUpAngle);
                 }
-                // Powered flight behavior
-                minecraftClient.options.keyUse.setDown(ModConfig.INSTANCE.poweredFlight && currentVelocity < 1.25f);
             }
             if (pullDown && !(isLanding || forceLand) && !strategyActive) {
                 player.setXRot((float) (pitch + ModConfig.INSTANCE.pullDownSpeed * pitchMod * speedMod));
@@ -326,8 +320,6 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 if (pitch >= ModConfig.INSTANCE.pullDownAngle) {
                     player.setXRot((float) ModConfig.INSTANCE.pullDownAngle);
                 }
-                // Powered flight behavior
-                minecraftClient.options.keyUse.setDown(ModConfig.INSTANCE.poweredFlight && currentVelocity < 1.25f);
             }
         } else {
             velHigh = 0f;
@@ -359,6 +351,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
         if (player == null) {
             autoFlight = false;
             onTakeoff = false;
+            takeoffCooldown = 0;
+            FlightInputController.reset();
             return;
         }
 
@@ -371,6 +365,9 @@ public class ElytraAutoPilot implements ClientModInitializer {
             climbTick = 0;
             cruiseTick = 0;
             strategyActive = false;
+            if (!onTakeoff && takeoffCooldown == 0) {
+                FlightInputController.reset();
+            }
         }
 
         double altitude;
@@ -394,6 +391,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 isflytoActive = false;
                 isLanding = false;
                 autoFlight = false;
+                FlightInputController.reset();
                 return;
             }
 
@@ -430,9 +428,6 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 } else {
                     cruiseTick = strategy.nextTick(cruiseTick);
                 }
-
-                // Powered flight (same behavior as classic mode)
-                minecraftClient.options.keyUse.setDown(ModConfig.INSTANCE.poweredFlight && currentVelocity < 1.25f);
             } else {
                 // Classic mode: velocity-thresholded hysteresis controller
                 strategyActive = false;
@@ -468,8 +463,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
         if (!takeoffPressed && KeyBindings.takeoffBinding.isDown()) {
             if (onTakeoff) {
                 onTakeoff = false;
-                minecraftClient.options.keyUse.setDown(false);
-                minecraftClient.options.keyJump.setDown(false);
+                takeoffCooldown = 0;
+                FlightInputController.reset();
                 doGlide = true;
             } else {
                 takeoff();
@@ -482,7 +477,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
             SoundEvent soundEvent = SoundEvent
                     .createVariableRangeEvent(Identifier.parse(ModConfig.INSTANCE.playSoundOnLanding));
             player.playSound(soundEvent, 1.3f, 1f);
-            minecraftClient.options.keyUse.setDown(false);
+            FlightInputController.reset();
             forceLand = true;
         }
 
@@ -495,7 +490,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 } else {
                     // If the player is flying an elytra, we start the auto flight
                     autoFlight = !autoFlight;
-                    minecraftClient.options.keyUse.setDown(false);
+                    FlightInputController.reset();
                     if (autoFlight) {
                         isDescending = true;
                         pitchMod = 3f;
@@ -529,6 +524,8 @@ public class ElytraAutoPilot implements ClientModInitializer {
             takeoff();
         }
 
+        tickFlightInput(player);
+
         if (calculateHud) {
             computeVelocity();
             Hud.drawHud(player);
@@ -538,30 +535,18 @@ public class ElytraAutoPilot implements ClientModInitializer {
         }
     }
 
-    private static boolean tryRestockFirework(Player player) {
-        if (ModConfig.INSTANCE.fireworkHotswap) {
-            ItemStack newFirework = null;
-            for (ItemStack itemStack : player.getInventory().getNonEquipmentItems()) {
-                if (itemStack.getItem() == Items.FIREWORK_ROCKET) {
-                    newFirework = itemStack;
-                    break;
-                }
-            }
-            if (newFirework != null) {
-                int handSlot;
-                if (player.getOffhandItem().isEmpty()) {
-                    handSlot = 45; // Offhand slot refill
-                } else {
-                    handSlot = 36 + player.getInventory().getSelectedSlot(); // Mainhand slot refill
-                }
-
-                assert minecraftClient.gameMode != null;
-                minecraftClient.gameMode.handleContainerInput(player.inventoryMenu.containerId, handSlot,
-                        player.getInventory().getNonEquipmentItems().indexOf(newFirework), ContainerInput.SWAP, player);
-                return true;
-            }
+    private static void tickFlightInput(LocalPlayer player) {
+        if (takeoffCooldown > 0) {
+            FlightInputController.requestTakeoffJump();
         }
-        return false;
+        if (autoFlight && !onTakeoff && !isLanding && !forceLand && !strategyActive && ModConfig.INSTANCE.poweredFlight
+                && currentVelocity < 1.25f) {
+            FlightInputController.requestPoweredFlight();
+        }
+        FlightInputController.tick(minecraftClient);
+        if (onTakeoff && FlightInputController.consumeTakeoffFireworkFailure()) {
+            abortTakeoff(player);
+        }
     }
 
     private static boolean tryRestockElytra(LocalPlayer player) {

@@ -1,6 +1,7 @@
 package net.elytraautopilot.mixin;
 
 import net.elytraautopilot.config.ModConfig;
+import net.elytraautopilot.input.FlightInputController;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -16,6 +17,15 @@ import static net.elytraautopilot.utils.ElytraManager.*;
 
 @Mixin(LocalPlayer.class)
 public class ClientPlayerEntityMixin {
+
+    @Inject(method = "aiStep", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/client/player/ClientInput;tick()V"))
+    private void applyAutopilotJump(CallbackInfo ci) {
+        if (!FlightInputController.shouldJumpThisTick()) {
+            return;
+        }
+        LocalPlayer player = (LocalPlayer) (Object) this;
+        player.input.makeJump();
+    }
 
     @Inject(method = "aiStep", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/client/player/LocalPlayer;tryToStartFallFlying()Z"))
     private void onPlayerTickMovement(CallbackInfo ci) {

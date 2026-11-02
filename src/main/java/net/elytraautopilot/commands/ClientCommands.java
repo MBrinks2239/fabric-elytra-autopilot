@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import net.elytraautopilot.ElytraAutoPilot;
 import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.exceptions.InvalidLocationException;
+import net.elytraautopilot.input.FlightInputController;
 import net.elytraautopilot.types.FlyToLocation;
 import net.elytraautopilot.utils.CommandSuggestionProvider;
 import net.elytraautopilot.utils.FreeCameraState;
@@ -217,7 +218,7 @@ public class ClientCommands {
                         SoundEvent soundEvent = SoundEvent
                                 .createVariableRangeEvent(Identifier.parse(ModConfig.INSTANCE.playSoundOnLanding));
                         player.playSound(soundEvent, 1.3f, 1f);
-                        minecraftClient.options.keyUse.setDown(false);
+                        FlightInputController.reset();
                         ElytraAutoPilot.forceLand = true;
                         return 1;
                     }
