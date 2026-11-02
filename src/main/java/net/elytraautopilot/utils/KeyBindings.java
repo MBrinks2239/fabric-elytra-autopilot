@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 public class KeyBindings {
     public static KeyMapping configBinding;
@@ -26,16 +25,17 @@ public class KeyBindings {
                 ? "key." + modid + ".toggle"
                 : "key." + modid + ".toggle_no_cloth";
 
-        landBinding = new KeyMapping("key." + modid + ".land", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT,
+        landBinding = new KeyMapping("key." + modid + ".land", InputConstants.Type.KEYBOARD, InputConstants.KEY_RSHIFT,
                 CATEGORY);
 
-        takeoffBinding = new KeyMapping("key." + modid + ".takeoff", InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_RIGHT_ALT, CATEGORY);
+        takeoffBinding = new KeyMapping("key." + modid + ".takeoff", InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_RALT, CATEGORY);
 
-        configBinding = new KeyMapping(key, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY);
+        configBinding = new KeyMapping(key, InputConstants.Type.KEYBOARD, InputConstants.KEY_R, CATEGORY);
 
         KeyMappingHelper.registerKeyMapping(configBinding);
         KeyMappingHelper.registerKeyMapping(landBinding);
         KeyMappingHelper.registerKeyMapping(takeoffBinding);
+
     }
 }
