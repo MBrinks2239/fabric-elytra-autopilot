@@ -1,7 +1,6 @@
 package net.elytraautopilot.mixin;
 
 import net.elytraautopilot.ElytraAutoPilot;
-import net.elytraautopilot.config.ModConfig;
 import net.elytraautopilot.utils.FreeCameraState;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
@@ -14,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class MouseHandlerMixin {
     @Unique
     private static boolean shouldRedirect() {
-        return ElytraAutoPilot.autoFlight && ModConfig.INSTANCE.cameraDecoupled && !ElytraAutoPilot.isLanding
-                && !ElytraAutoPilot.forceLand;
+        return FreeCameraState.isActive();
     }
 
     @Redirect(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"))
@@ -30,7 +28,7 @@ public class MouseHandlerMixin {
         float scale = 0.15f;
         if (ElytraAutoPilot.isflytoActive) {
             // Full decouple: both yaw and pitch go to free camera
-            FreeCameraState.yaw += (float) deltaYaw * scale;
+            FreeCameraState.addYaw((float) deltaYaw * scale);
             FreeCameraState.addPitch((float) deltaPitch * scale);
         } else {
             // Free cruise: pitch to free camera, yaw to entity (controls flight direction)

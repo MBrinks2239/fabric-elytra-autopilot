@@ -12,6 +12,13 @@ Press the assigned key (default "R") while flying at a sufficient altitude to en
 
 To open the config screen and enable Mod Menu, go into the mod menu and open the configuration screen there. 
 
+## Camera Decoupling
+Enable **Camera Decoupled** in the config to look around freely while Auto Flight is flying for you.
+- During `/flyto` the autopilot owns the heading, so both yaw and pitch are free.
+- In plain Auto Flight the mouse still steers your heading, so only pitch is decoupled.
+
+The free camera overrides the camera rotation directly (`Camera.alignWithEntity` → `Camera.setRotation`), so it stays rock solid instead of having to fight Minecraft's per-tick rotation interpolation. Your player rotation is never touched, which means flight control and the server-side rotation are unaffected by free look.
+
 ## /flyto Command
 **Syntax:** `/flyto X Z` or `/flyto <name>`
 
