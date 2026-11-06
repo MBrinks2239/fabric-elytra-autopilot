@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.fabricmc.loader.api.FabricLoader;
+import net.elytraautopilot.utils.HudAnchor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
@@ -31,10 +33,10 @@ public class ModConfig {
     public static final int minGuiScale = 0;
     public static final int maxGuiScale = 1000;
     public static final int guiXDefault = 5;
-    public static final int minGuiX = 0;
+    public static final int minGuiX = -1000;
     public static final int maxGuiX = 1000;
     public static final int guiYDefault = 5;
-    public static final int minGuiY = 0;
+    public static final int minGuiY = -1000;
     public static final int maxGuiY = 1000;
 
     // Info lines
@@ -95,6 +97,8 @@ public class ModConfig {
     public int guiScale = guiScaleDefault;
     public int guiX = guiXDefault;
     public int guiY = guiYDefault;
+    public HudAnchor guiAnchorX = HudAnchor.START;
+    public HudAnchor guiAnchorY = HudAnchor.START;
 
     // Info lines
     public boolean showEnabled = showEnabledDefault;
@@ -144,6 +148,33 @@ public class ModConfig {
     public List<String> flyLocations = flyLocationsDefault;
 
     public static Screen createConfigScreen(Screen parent) {
+        Option<HudAnchor> guiAnchorXOption = Option.<HudAnchor>createBuilder()
+                .name(Component.translatable("config.elytraautopilot.gui.anchorX"))
+                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.anchorX.desc")))
+                .binding(HudAnchor.START, () -> ModConfig.INSTANCE.guiAnchorX,
+                        newVal -> ModConfig.INSTANCE.guiAnchorX = newVal)
+                .controller(opt -> EnumControllerBuilder.create(opt).enumClass(HudAnchor.class)
+                        .formatValue(v -> HudEditScreen.anchorName(v, false)))
+                .build();
+        Option<HudAnchor> guiAnchorYOption = Option.<HudAnchor>createBuilder()
+                .name(Component.translatable("config.elytraautopilot.gui.anchorY"))
+                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.anchorY.desc")))
+                .binding(HudAnchor.START, () -> ModConfig.INSTANCE.guiAnchorY,
+                        newVal -> ModConfig.INSTANCE.guiAnchorY = newVal)
+                .controller(opt -> EnumControllerBuilder.create(opt).enumClass(HudAnchor.class)
+                        .formatValue(v -> HudEditScreen.anchorName(v, true)))
+                .build();
+        Option<Integer> guiXOption = Option.<Integer>createBuilder()
+                .name(Component.translatable("config.elytraautopilot.gui.guiX"))
+                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.guiX.desc")))
+                .binding(guiXDefault, () -> ModConfig.INSTANCE.guiX, newVal -> ModConfig.INSTANCE.guiX = newVal)
+                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minGuiX).max(maxGuiX)).build();
+        Option<Integer> guiYOption = Option.<Integer>createBuilder()
+                .name(Component.translatable("config.elytraautopilot.gui.guiY"))
+                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.guiY.desc")))
+                .binding(guiYDefault, () -> ModConfig.INSTANCE.guiY, newVal -> ModConfig.INSTANCE.guiY = newVal)
+                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minGuiY).max(maxGuiY)).build();
+
         return YetAnotherConfigLib.createBuilder().title(Component.translatable("config.elytraautopilot.gui")).category(
                 ConfigCategory.createBuilder().name(Component.translatable("config.elytraautopilot.gui")).option(Option
                         .<Boolean>createBuilder().name(Component.translatable("config.elytraautopilot.gui.showgui"))
@@ -161,22 +192,29 @@ public class ModConfig {
                                 .controller(opt -> IntegerSliderControllerBuilder.create(opt)
                                         .range(minGuiScale, maxGuiScale).step(1))
                                 .build())
-                        .option(Option.<Integer>createBuilder()
-                                .name(Component.translatable("config.elytraautopilot.gui.guiX"))
+                        .option(ButtonOption.createBuilder()
+                                .name(Component.translatable("config.elytraautopilot.gui.editPosition"))
+                                .text(Component.translatable("config.elytraautopilot.gui.editPosition.button"))
                                 .description(OptionDescription
-                                        .of(Component.translatable("config.elytraautopilot.gui.guiX.desc")))
-                                .binding(guiXDefault, () -> ModConfig.INSTANCE.guiX,
-                                        newVal -> ModConfig.INSTANCE.guiX = newVal)
-                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minGuiX).max(maxGuiX))
+                                        .of(Component.translatable("config.elytraautopilot.gui.editPosition.desc")))
+                                .action((screen, button) -> Minecraft.getInstance().gui
+                                        .setScreen(new HudEditScreen(screen, guiAnchorXOption.pendingValue(),
+                                                guiAnchorYOption.pendingValue(), guiXOption.pendingValue(),
+                                                guiYOption.pendingValue(), (anchorX, anchorY, x, y) -> {
+                                                    // Persist right away and sync the fields so YACL sees no pending
+                                                    // change
+                                                    INSTANCE.guiAnchorX = anchorX;
+                                                    INSTANCE.guiAnchorY = anchorY;
+                                                    INSTANCE.guiX = x;
+                                                    INSTANCE.guiY = y;
+                                                    INSTANCE.saveConfig(CONFIG_FILE.toFile());
+                                                    guiAnchorXOption.requestSet(anchorX);
+                                                    guiAnchorYOption.requestSet(anchorY);
+                                                    guiXOption.requestSet(x);
+                                                    guiYOption.requestSet(y);
+                                                })))
                                 .build())
-                        .option(Option.<Integer>createBuilder()
-                                .name(Component.translatable("config.elytraautopilot.gui.guiY"))
-                                .description(OptionDescription
-                                        .of(Component.translatable("config.elytraautopilot.gui.guiY.desc")))
-                                .binding(guiYDefault, () -> ModConfig.INSTANCE.guiY,
-                                        newVal -> ModConfig.INSTANCE.guiY = newVal)
-                                .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minGuiY).max(maxGuiY))
-                                .build())
+                        .option(guiAnchorXOption).option(guiXOption).option(guiAnchorYOption).option(guiYOption)
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.enabled"))
                                 .description(OptionDescription
@@ -496,6 +534,15 @@ public class ModConfig {
 
         if (config.flyLocations == null) {
             config.flyLocations = new ArrayList<>();
+        }
+
+        // Gson leaves enums null for unrecognised values, e.g. a typo in a hand-edited
+        // config
+        if (config.guiAnchorX == null) {
+            config.guiAnchorX = HudAnchor.START;
+        }
+        if (config.guiAnchorY == null) {
+            config.guiAnchorY = HudAnchor.START;
         }
 
         config.saveConfig(file);
