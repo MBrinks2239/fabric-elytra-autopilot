@@ -1,22 +1,41 @@
 package net.elytraautopilot.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import dev.isxander.yacl3.api.*;
-import dev.isxander.yacl3.api.controller.*;
-import net.fabricmc.loader.api.FabricLoader;
-import net.elytraautopilot.utils.HudAnchor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import dev.isxander.yacl3.api.ButtonOption;
+import dev.isxander.yacl3.api.ConfigCategory;
+import dev.isxander.yacl3.api.ListOption;
+import dev.isxander.yacl3.api.Option;
+import dev.isxander.yacl3.api.OptionDescription;
+import dev.isxander.yacl3.api.YetAnotherConfigLib;
+import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
+import dev.isxander.yacl3.api.controller.DoubleFieldControllerBuilder;
+import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
+import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
+import dev.isxander.yacl3.api.controller.StringControllerBuilder;
+import net.elytraautopilot.utils.HudAnchor;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public class ModConfig {
 
@@ -90,7 +109,7 @@ public class ModConfig {
     public static final double pullDownMaxVelocityDefault = 2.33;
     public static final double pullUpSpeedDefault = 2.16;
     public static final double pullDownSpeedDefault = 0.21;
-    public static List<String> flyLocationsDefault = new ArrayList<>();
+    public static final List<String> flyLocationsDefault = List.of();
 
     // Gui values
     public boolean showGui = showGuiDefault;
@@ -145,7 +164,7 @@ public class ModConfig {
     public double pullUpSpeed = pullUpSpeedDefault;
     public double pullDownSpeed = pullDownSpeedDefault;
     public int elytraReplaceDurability = elytraReplaceDurabilityDefault;
-    public List<String> flyLocations = flyLocationsDefault;
+    public List<String> flyLocations = new ArrayList<>();
 
     public static Screen createConfigScreen(Screen parent) {
         Option<HudAnchor> guiAnchorXOption = Option.<HudAnchor>createBuilder()
@@ -500,7 +519,7 @@ public class ModConfig {
                         .option(ListOption.<String>createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.advanced.flyLocations"))
                                 .binding(flyLocationsDefault, () -> ModConfig.INSTANCE.flyLocations,
-                                        newVal -> ModConfig.INSTANCE.flyLocations = newVal)
+                                        newVal -> ModConfig.INSTANCE.flyLocations = new ArrayList<>(newVal))
                                 .controller(StringControllerBuilder::create).initial("Location;0;0").build())
                         .build())
                 .save(() -> INSTANCE.saveConfig(CONFIG_FILE.toFile())).build().generateScreen(parent);
