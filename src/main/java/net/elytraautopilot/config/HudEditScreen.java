@@ -1,6 +1,9 @@
 package net.elytraautopilot.config;
 
+import java.util.Locale;
+
 import com.mojang.blaze3d.platform.InputConstants;
+
 import net.elytraautopilot.utils.Hud;
 import net.elytraautopilot.utils.HudAnchor;
 import net.elytraautopilot.utils.HudRenderer;
@@ -13,8 +16,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-
-import java.util.Locale;
 
 /**
  * Lets the player drag a preview of the flight HUD to where they want it. The
@@ -42,13 +43,14 @@ public class HudEditScreen extends Screen {
     private HudAnchor anchorY;
     private int offsetX;
     private int offsetY;
+    private final float scale;
 
     private boolean dragging;
     private double dragOffsetX;
     private double dragOffsetY;
     private boolean cancelled;
 
-    public HudEditScreen(Screen parent, HudAnchor anchorX, HudAnchor anchorY, int offsetX, int offsetY,
+    public HudEditScreen(Screen parent, HudAnchor anchorX, HudAnchor anchorY, int offsetX, int offsetY, int guiScale,
             PositionConsumer onSave) {
         super(Component.translatable("config.elytraautopilot.hudEditor.title"));
         this.parent = parent;
@@ -57,6 +59,7 @@ public class HudEditScreen extends Screen {
         this.anchorY = anchorY;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
+        this.scale = HudRenderer.scaleFactor(guiScale);
     }
 
     @Override
@@ -96,12 +99,16 @@ public class HudEditScreen extends Screen {
                 Component.translatable("text.elytraautopilot.hud.eta", "120").withStyle(ChatFormatting.AQUA)};
     }
 
+    private int textWidth() {
+        return HudRenderer.boxWidth(font, previewLines);
+    }
+
     private int boxWidth() {
-        return Math.max(HudRenderer.boxWidth(font, previewLines), 20);
+        return Math.max(HudRenderer.scaled(textWidth(), scale), 20);
     }
 
     private int boxHeight() {
-        return Math.max(HudRenderer.boxHeight(font, previewLines), font.lineHeight);
+        return Math.max(HudRenderer.scaled(HudRenderer.boxHeight(font, previewLines), scale), font.lineHeight);
     }
 
     private int boxX() {
@@ -221,7 +228,8 @@ public class HudEditScreen extends Screen {
         boolean highlighted = dragging || isOverBox(mouseX, mouseY);
         graphics.fill(x0, y0, x0 + w, y0 + h, highlighted ? 0x80FFFFFF : 0x60000000);
         graphics.outline(x0, y0, w, h, highlighted ? 0xFFFFFF55 : 0xFFFFFFFF);
-        HudRenderer.drawLines(graphics, font, previewLines, x, y, boxWidth(), anchorX);
+        int textX = anchorX.align(x, boxWidth(), HudRenderer.scaled(textWidth(), scale));
+        HudRenderer.drawLines(graphics, font, previewLines, textX, y, textWidth(), scale, anchorX);
 
         if (!dragging) {
             graphics.centeredText(font, title, width / 2, height / 2 - 20, 0xFFFFFFFF);

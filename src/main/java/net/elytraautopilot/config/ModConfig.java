@@ -194,6 +194,14 @@ public class ModConfig {
                 .binding(guiYDefault, () -> ModConfig.INSTANCE.guiY, newVal -> ModConfig.INSTANCE.guiY = newVal)
                 .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(minGuiY).max(maxGuiY)).build();
 
+        Option<Integer> guiScaleOption = Option.<Integer>createBuilder()
+                .name(Component.translatable("config.elytraautopilot.gui.guiScale"))
+                .description(OptionDescription.of(Component.translatable("config.elytraautopilot.gui.guiScale.desc")))
+                .binding(guiScaleDefault, () -> ModConfig.INSTANCE.guiScale,
+                        newVal -> ModConfig.INSTANCE.guiScale = newVal)
+                .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(minGuiScale, maxGuiScale).step(1))
+                .build();
+
         return YetAnotherConfigLib.createBuilder().title(Component.translatable("config.elytraautopilot.gui")).category(
                 ConfigCategory.createBuilder().name(Component.translatable("config.elytraautopilot.gui")).option(Option
                         .<Boolean>createBuilder().name(Component.translatable("config.elytraautopilot.gui.showgui"))
@@ -201,25 +209,17 @@ public class ModConfig {
                                 OptionDescription.of(Component.translatable("config.elytraautopilot.gui.showgui.desc")))
                         .binding(showGuiDefault, () -> ModConfig.INSTANCE.showGui,
                                 newVal -> ModConfig.INSTANCE.showGui = newVal)
-                        .controller(BooleanControllerBuilder::create).build())
-                        .option(Option.<Integer>createBuilder()
-                                .name(Component.translatable("config.elytraautopilot.gui.guiScale"))
-                                .description(OptionDescription
-                                        .of(Component.translatable("config.elytraautopilot.gui.guiScale.desc")))
-                                .binding(guiScaleDefault, () -> ModConfig.INSTANCE.guiScale,
-                                        newVal -> ModConfig.INSTANCE.guiScale = newVal)
-                                .controller(opt -> IntegerSliderControllerBuilder.create(opt)
-                                        .range(minGuiScale, maxGuiScale).step(1))
-                                .build())
+                        .controller(BooleanControllerBuilder::create).build()).option(guiScaleOption)
                         .option(ButtonOption.createBuilder()
                                 .name(Component.translatable("config.elytraautopilot.gui.editPosition"))
                                 .text(Component.translatable("config.elytraautopilot.gui.editPosition.button"))
                                 .description(OptionDescription
                                         .of(Component.translatable("config.elytraautopilot.gui.editPosition.desc")))
-                                .action((screen, button) -> Minecraft.getInstance().gui
-                                        .setScreen(new HudEditScreen(screen, guiAnchorXOption.pendingValue(),
-                                                guiAnchorYOption.pendingValue(), guiXOption.pendingValue(),
-                                                guiYOption.pendingValue(), (anchorX, anchorY, x, y) -> {
+                                .action((screen,
+                                        button) -> Minecraft.getInstance().gui.setScreen(new HudEditScreen(screen,
+                                                guiAnchorXOption.pendingValue(), guiAnchorYOption.pendingValue(),
+                                                guiXOption.pendingValue(), guiYOption.pendingValue(),
+                                                guiScaleOption.pendingValue(), (anchorX, anchorY, x, y) -> {
                                                     // Persist right away and sync the fields so YACL sees no pending
                                                     // change
                                                     INSTANCE.guiAnchorX = anchorX;
