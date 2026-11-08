@@ -1,16 +1,32 @@
 package net.elytraautopilot.mixin;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import net.elytraautopilot.ElytraAutoPilot;
 import net.elytraautopilot.utils.FreeCameraState;
+import net.elytraautopilot.utils.KeyBindings;
 import net.minecraft.client.MouseHandler;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MouseHandler.class)
 public class MouseHandlerMixin {
+    /**
+     * Mirror of KeyboardHandlerMixin for bindings mapped to a mouse button. Vanilla
+     * only calls click() here for presses that reach game input; mouse buttons do
+     * not auto-repeat.
+     */
+    @Inject(method = "onButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;click(Lcom/mojang/blaze3d/platform/InputConstants$Key;)V"))
+    private void onKeyMappingClick(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
+        KeyBindings.onKeyPressed(InputConstants.Type.MOUSE.getOrCreate(rawButtonInfo.button()));
+    }
+
     @Unique
     private static boolean shouldRedirect() {
         return FreeCameraState.isActive();

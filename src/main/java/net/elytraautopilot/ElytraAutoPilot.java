@@ -36,9 +36,6 @@ import static net.elytraautopilot.utils.ElytraManager.*;
 public class ElytraAutoPilot implements ClientModInitializer {
     public static final String MODID = "elytraautopilot";
     public static final Logger LOGGER = LoggerFactory.getLogger("ElytraAutoPilot");
-    private static boolean configPressed = false;
-    private static boolean landPressed = false;
-    private static boolean takeoffPressed = false;
     public static Minecraft minecraftClient;
     public static boolean calculateHud;
     public static boolean autoFlight;
@@ -460,7 +457,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 }
             }
         }
-        if (!takeoffPressed && KeyBindings.takeoffBinding.isDown()) {
+        if (KeyBindings.consumeTakeoffPress()) {
             if (onTakeoff) {
                 onTakeoff = false;
                 takeoffCooldown = 0;
@@ -471,7 +468,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
             }
         }
 
-        if (!landPressed && KeyBindings.landBinding.isDown() && autoFlight) {
+        if (KeyBindings.consumeLandPress() && autoFlight) {
             player.sendOverlayMessage(
                     Component.translatable("text.elytraautopilot.landing").withStyle(ChatFormatting.BLUE));
             SoundEvent soundEvent = SoundEvent
@@ -481,7 +478,7 @@ public class ElytraAutoPilot implements ClientModInitializer {
             forceLand = true;
         }
 
-        if (!configPressed && KeyBindings.configBinding.isDown()) {
+        if (KeyBindings.consumeConfigPress()) {
             if (player.isFallFlying()) {
                 if (!autoFlight && groundheight < ModConfig.INSTANCE.minHeight) {
                     player.sendOverlayMessage(Component.translatable("text.elytraautopilot.autoFlightFail.tooLow")
@@ -511,9 +508,6 @@ public class ElytraAutoPilot implements ClientModInitializer {
                 minecraftClient.gui.setScreen(configScreen);
             }
         }
-        configPressed = KeyBindings.configBinding.isDown();
-        landPressed = KeyBindings.landBinding.isDown();
-        takeoffPressed = KeyBindings.takeoffBinding.isDown();
 
         if (takeoffCooldown > 0) {
             if (--takeoffCooldown == 0)

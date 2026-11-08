@@ -14,7 +14,44 @@ public class KeyBindings {
     public static KeyMapping landBinding;
     public static KeyMapping takeoffBinding;
 
+    private static boolean configPressed;
+    private static boolean landPressed;
+    private static boolean takeoffPressed;
+
     private static KeyMapping.Category CATEGORY;
+
+    /**
+     * Called from KeyboardHandlerMixin / MouseHandlerMixin for genuine (non-repeat)
+     * key or mouse button presses that reach game input.
+     */
+    public static void onKeyPressed(InputConstants.Key key) {
+        if (configBinding == null)
+            return;
+        if (configBinding.matches(key))
+            configPressed = true;
+        if (landBinding.matches(key))
+            landPressed = true;
+        if (takeoffBinding.matches(key))
+            takeoffPressed = true;
+    }
+
+    public static boolean consumeConfigPress() {
+        boolean pressed = configPressed;
+        configPressed = false;
+        return pressed;
+    }
+
+    public static boolean consumeLandPress() {
+        boolean pressed = landPressed;
+        landPressed = false;
+        return pressed;
+    }
+
+    public static boolean consumeTakeoffPress() {
+        boolean pressed = takeoffPressed;
+        takeoffPressed = false;
+        return pressed;
+    }
 
     public static void init() {
         String modid = ElytraAutoPilot.getModId();
